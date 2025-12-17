@@ -1,0 +1,263 @@
+-- 1. CHỜ GAME TẢI
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextChatService = game:GetService("TextChatService")
+local StarterGui = game:GetService("StarterGui")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local pl = Players.LocalPlayer
+local DISCORD_LINK = "https://discord.gg/fzGMwWMbq"
+
+-- LẤY TÊN GAME
+local gameName = "Loading..."
+task.spawn(function()
+    pcall(function() gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name end)
+end)
+
+-- [BẢO MẬT KEY] (THINH?)
+local HIDDEN_HASH = "84|72|73|78|72|63"
+local function CheckPass(str)
+    local code = ""
+    for i = 1, #str do code = code .. string.byte(str, i, i) .. "|" end
+    return code:sub(1, -2) == HIDDEN_HASH
+end
+
+-- [HỆ THỐNG MÀU SẮC]
+local THEMES = {
+    CYAN = {Name = "Xanh Neon", Main = Color3.fromRGB(0, 255, 230), Bg = Color3.fromRGB(15, 20, 25)},
+    RED = {Name = "Đỏ Huyết", Main = Color3.fromRGB(255, 50, 50), Bg = Color3.fromRGB(25, 10, 10)},
+    GREEN = {Name = "Xanh Lá", Main = Color3.fromRGB(0, 255, 0), Bg = Color3.fromRGB(10, 25, 10)},
+    PURPLE = {Name = "Tím Mộng", Main = Color3.fromRGB(170, 0, 255), Bg = Color3.fromRGB(25, 10, 35)},
+    ORANGE = {Name = "Cam Cháy", Main = Color3.fromRGB(255, 120, 0), Bg = Color3.fromRGB(30, 15, 5)},
+    PINK = {Name = "Hồng Phấn", Main = Color3.fromRGB(255, 100, 180), Bg = Color3.fromRGB(30, 10, 20)},
+    BLUE = {Name = "Xanh Biển", Main = Color3.fromRGB(0, 120, 255), Bg = Color3.fromRGB(10, 15, 30)},
+    WHITE = {Name = "Bạch Kim", Main = Color3.fromRGB(255, 255, 255), Bg = Color3.fromRGB(30, 30, 30)},
+    YELLOW = {Name = "Vàng Chanh", Main = Color3.fromRGB(255, 255, 0), Bg = Color3.fromRGB(25, 25, 5)}
+}
+local currentTheme = THEMES.CYAN
+local isRainbow = false -- Biến kiểm soát chế độ Rainbow
+
+-- 2. XÓA GUI CŨ
+for _, v in pairs(pl.PlayerGui:GetChildren()) do
+    if v.Name == "ThinhDeity_V82" then v:Destroy() end
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ThinhDeity_V82"
+gui.Parent = pl.PlayerGui
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 9999
+
+-- ==========================================
+-- PHẦN 1: GIAO DIỆN KEY (ẨN KÝ TỰ)
+-- ==========================================
+local keyFrame = Instance.new("Frame", gui)
+keyFrame.Size = UDim2.new(0, 400, 0, 240); keyFrame.Position = UDim2.new(0.5, 0, 0.5, 0); keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20); keyFrame.Visible = true; keyFrame.Active = true; keyFrame.Draggable = true
+Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", keyFrame).Color = Color3.fromRGB(255, 255, 0); Instance.new("UIStroke", keyFrame).Thickness = 2
+
+local kTitle = Instance.new("TextLabel", keyFrame)
+kTitle.Text = "THINH DEITY SECURITY"; kTitle.Size = UDim2.new(1, 0, 0, 40); kTitle.TextColor3 = Color3.fromRGB(255, 255, 0); kTitle.Font = Enum.Font.GothamBold; kTitle.TextSize = 18; kTitle.BackgroundTransparency = 1
+
+local kInput = Instance.new("TextBox", keyFrame)
+kInput.Size = UDim2.new(0.7, 0, 0.18, 0); kInput.Position = UDim2.new(0.1, 0, 0.25, 0)
+kInput.BackgroundColor3 = Color3.fromRGB(40, 40, 50); kInput.TextColor3 = Color3.new(1,1,1); kInput.Text = ""; kInput.PlaceholderText = "Nhập Key..."
+Instance.new("UICorner", kInput)
+
+-- Logic Ẩn Key
+local actualKey, isTyping, isHidden = "", false, true
+local hideBtn = Instance.new("TextButton", keyFrame); hideBtn.Size = UDim2.new(0.1, 0, 0.18, 0); hideBtn.Position = UDim2.new(0.82, 0, 0.25, 0); hideBtn.BackgroundColor3 = Color3.fromRGB(60,60,70); hideBtn.Text = "👁️"; Instance.new("UICorner", hideBtn)
+kInput:GetPropertyChangedSignal("Text"):Connect(function()
+    if isTyping then return end; isTyping = true
+    if isHidden then
+        local newT = kInput.Text
+        if #newT > #actualKey then actualKey = actualKey..newT:sub(#actualKey+1) elseif #newT < #actualKey then actualKey = actualKey:sub(1, #newT) end
+        kInput.Text = string.rep("*", #actualKey)
+    else actualKey = kInput.Text end; isTyping = false
+end)
+hideBtn.MouseButton1Click:Connect(function() isHidden = not isHidden; isTyping=true; kInput.Text = isHidden and string.rep("*",#actualKey) or actualKey; isTyping=false end)
+
+local discordBtn = Instance.new("TextButton", keyFrame)
+discordBtn.Size = UDim2.new(0.8, 0, 0.15, 0); discordBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
+discordBtn.Text = "LẤY KEY (COPY DISCORD)"; discordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242); discordBtn.TextColor3 = Color3.new(1,1,1); discordBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", discordBtn)
+discordBtn.MouseButton1Click:Connect(function() setclipboard(DISCORD_LINK); discordBtn.Text = "ĐÃ COPY LINK!"; task.wait(1); discordBtn.Text = "LẤY KEY (COPY DISCORD)" end)
+
+local kBtn = Instance.new("TextButton", keyFrame)
+kBtn.Size = UDim2.new(0.4, 0, 0.2, 0); kBtn.Position = UDim2.new(0.3, 0, 0.75, 0)
+kBtn.Text = "CHECK KEY"; kBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0); kBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", kBtn)
+
+-- ==========================================
+-- PHẦN 2: MAIN MENU & POPUPS
+-- ==========================================
+local function LoadMainMenu()
+    keyFrame:Destroy()
+    StarterGui:SetCore("SendNotification", {Title = "V82 RAINBOW", Text = "Đã kích hoạt!", Duration = 5})
+
+    local config = { speed=false, noclip=false, magnet=false, kill=false, esp=false, god=false, invis=false, spam=false, killaura=false }
+    local customSpeed, spamContent = 75, "THINH DEITY ON TOP"
+
+    -- [UI 1] MENU CHÍNH
+    local menu = Instance.new("Frame", gui)
+    menu.Size = UDim2.new(0, 480, 0, 300); menu.Position = UDim2.new(0.5, -240, 0.5, -150); menu.BackgroundColor3 = currentTheme.Bg
+    menu.Visible = true; menu.Active = true; menu.Draggable = true; menu.ZIndex = 1
+    Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 10)
+    local mStroke = Instance.new("UIStroke", menu); mStroke.Color = currentTheme.Main; mStroke.Thickness = 2
+
+    local title = Instance.new("TextLabel", menu)
+    title.Text = "THINH DEITY V82"; title.Size = UDim2.new(0.7, 0, 0, 30); title.Position = UDim2.new(0, 15, 0, 5)
+    title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- [INFO BAR - GỐC TRÁI]
+    local infoLabel = Instance.new("TextLabel", menu)
+    infoLabel.Size = UDim2.new(0.9, 0, 0, 30); infoLabel.Position = UDim2.new(0.03, 0, 0.88, 0)
+    infoLabel.BackgroundTransparency = 1; infoLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    infoLabel.Font = Enum.Font.Code; infoLabel.TextSize = 10; infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+    
+    RunService.RenderStepped:Connect(function()
+        local fps = math.floor(1 / RunService.RenderStepped:Wait())
+        infoLabel.Text = string.format("👤 USER: %s\n🎮 GAME: %s\n📊 FPS: %d", pl.Name, gameName, fps)
+    end)
+
+    -- [NÚT CÀI ĐẶT]
+    local settingsBtn = Instance.new("TextButton", menu)
+    settingsBtn.Size = UDim2.new(0, 80, 0, 30); settingsBtn.Position = UDim2.new(0.8, 0, 0.02, 0)
+    settingsBtn.Text = "⚙️ CÀI ĐẶT"; settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,50); settingsBtn.TextColor3 = currentTheme.Main; settingsBtn.Font = Enum.Font.GothamBold; settingsBtn.TextSize = 10; Instance.new("UICorner", settingsBtn)
+
+    -- [UI 2] BẢNG SETTINGS (MÀU SẮC)
+    local setFrame = Instance.new("Frame", gui); setFrame.Size = UDim2.new(0, 250, 0, 350); setFrame.Position = UDim2.new(0.85, 0, 0.5, 0); setFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    setFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30); setFrame.Visible = false; setFrame.ZIndex = 200
+    Instance.new("UICorner", setFrame); local setStroke = Instance.new("UIStroke", setFrame); setStroke.Color = currentTheme.Main; setStroke.Thickness = 2
+    
+    local setTitle = Instance.new("TextLabel", setFrame); setTitle.Text = "CHỌN MÀU (THEME)"; setTitle.Size = UDim2.new(1,0,0,30); setTitle.TextColor3 = Color3.new(1,1,1); setTitle.BackgroundTransparency=1; setTitle.Font=Enum.Font.GothamBold; setTitle.ZIndex=201
+    local setScroll = Instance.new("ScrollingFrame", setFrame); setScroll.Size = UDim2.new(0.9, 0, 0.75, 0); setScroll.Position = UDim2.new(0.05, 0, 0.12, 0); setScroll.BackgroundTransparency=1; setScroll.ZIndex=201
+    Instance.new("UIListLayout", setScroll).Padding = UDim.new(0,5)
+    local closeSet = Instance.new("TextButton", setFrame); closeSet.Size = UDim2.new(0.9,0,0.1,0); closeSet.Position = UDim2.new(0.05,0,0.88,0); closeSet.Text="ĐÓNG"; closeSet.BackgroundColor3=Color3.new(1,0,0); closeSet.ZIndex=201; Instance.new("UICorner", closeSet)
+    
+    settingsBtn.MouseButton1Click:Connect(function() setFrame.Visible = not setFrame.Visible end)
+    closeSet.MouseButton1Click:Connect(function() setFrame.Visible = false end)
+
+    -- [POPUPS KHÁC]
+    local speedFrame = Instance.new("Frame", gui); speedFrame.Visible=false; speedFrame.Size=UDim2.new(0,250,0,150); speedFrame.Position=UDim2.new(0.5,0,0.4,0); speedFrame.AnchorPoint=Vector2.new(0.5,0.5); speedFrame.BackgroundColor3=Color3.fromRGB(25,25,30); speedFrame.ZIndex=200; Instance.new("UICorner", speedFrame); local spStroke = Instance.new("UIStroke", speedFrame); spStroke.Color=Color3.new(1,1,1)
+    local spInput = Instance.new("TextBox", speedFrame); spInput.Size=UDim2.new(0.8,0,0.3,0); spInput.Position=UDim2.new(0.1,0,0.2,0); spInput.Text=tostring(customSpeed); spInput.ZIndex=201; Instance.new("UICorner", spInput)
+    local spApply = Instance.new("TextButton", speedFrame); spApply.Size=UDim2.new(0.4,0,0.25,0); spApply.Position=UDim2.new(0.3,0,0.6,0); spApply.Text="OK"; spApply.BackgroundColor3=Color3.new(0,1,0); spApply.ZIndex=201; Instance.new("UICorner", spApply)
+    spApply.MouseButton1Click:Connect(function() customSpeed = tonumber(spInput.Text) or 75; config.speed = true; speedFrame.Visible = false end)
+
+    local spamFrame = Instance.new("Frame", gui); spamFrame.Visible=false; spamFrame.Size=UDim2.new(0,300,0,180); spamFrame.Position=UDim2.new(0.5,0,0.4,0); spamFrame.AnchorPoint=Vector2.new(0.5,0.5); spamFrame.BackgroundColor3=Color3.fromRGB(25,25,30); spamFrame.ZIndex=200; Instance.new("UICorner", spamFrame); local smStroke = Instance.new("UIStroke", spamFrame); smStroke.Color=Color3.new(1,1,0)
+    local smInput = Instance.new("TextBox", spamFrame); smInput.Size=UDim2.new(0.9,0,0.3,0); smInput.Position=UDim2.new(0.05,0,0.15,0); smInput.Text=""; smInput.PlaceholderText="Nhập tin nhắn..."; smInput.ZIndex=201; Instance.new("UICorner", smInput)
+    local smStart = Instance.new("TextButton", spamFrame); smStart.Size=UDim2.new(0.4,0,0.25,0); smStart.Position=UDim2.new(0.05,0,0.6,0); smStart.Text="BẮT ĐẦU"; smStart.BackgroundColor3=Color3.new(0,1,0); smStart.ZIndex=201; Instance.new("UICorner", smStart)
+    local smStop = Instance.new("TextButton", spamFrame); smStop.Size=UDim2.new(0.4,0,0.25,0); smStop.Position=UDim2.new(0.55,0,0.6,0); smStop.Text="DỪNG"; smStop.BackgroundColor3=Color3.new(1,0,0); smStop.ZIndex=201; Instance.new("UICorner", smStop)
+    smStart.MouseButton1Click:Connect(function() if smInput.Text~="" then spamContent=smInput.Text end; config.spam=true; spamFrame.Visible=false end)
+    smStop.MouseButton1Click:Connect(function() config.spam=false end)
+
+    local tpFrame = Instance.new("Frame", gui); tpFrame.Visible=false; tpFrame.Size=UDim2.new(0,250,0,350); tpFrame.Position=UDim2.new(0.85,0,0.5,0); tpFrame.AnchorPoint=Vector2.new(0.5,0.5); tpFrame.BackgroundColor3=Color3.fromRGB(15,15,25); tpFrame.ZIndex=200; Instance.new("UICorner", tpFrame); local tpStroke = Instance.new("UIStroke", tpFrame); tpStroke.Color=Color3.fromRGB(0,150,255)
+    local tpScroll = Instance.new("ScrollingFrame", tpFrame); tpScroll.Size=UDim2.new(0.9,0,0.75,0); tpScroll.Position=UDim2.new(0.05,0,0.12,0); tpScroll.ZIndex=201; Instance.new("UIListLayout", tpScroll).Padding=UDim.new(0,5)
+    local tpClose = Instance.new("TextButton", tpFrame); tpClose.Size=UDim2.new(0.9,0,0.1,0); tpClose.Position=UDim2.new(0.05,0,0.88,0); tpClose.Text="ĐÓNG"; tpClose.BackgroundColor3=Color3.new(1,0,0); tpClose.ZIndex=201; Instance.new("UICorner", tpClose)
+    tpClose.MouseButton1Click:Connect(function() tpFrame.Visible=false end)
+    local function UpdateTPList() for _,v in pairs(tpScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end for _,p in pairs(Players:GetPlayers()) do if p~=pl then local b=Instance.new("TextButton",tpScroll); b.Size=UDim2.new(1,0,0,30); b.Text=p.Name; b.BackgroundColor3=Color3.fromRGB(40,40,50); b.TextColor3=Color3.new(1,1,1); b.ZIndex=202; Instance.new("UICorner",b); b.MouseButton1Click:Connect(function() if p.Character then pl.Character.HumanoidRootPart.CFrame=p.Character.HumanoidRootPart.CFrame*CFrame.new(0,3,0) end end) end end end
+
+    local grid = Instance.new("ScrollingFrame", menu); grid.Size = UDim2.new(0.95,0,0.7,0); grid.Position = UDim2.new(0.025,0,0.15,0); grid.BackgroundTransparency=1; grid.ScrollBarThickness=2
+    local layout = Instance.new("UIGridLayout", grid); layout.CellSize = UDim2.new(0.31,0,0,40); layout.CellPadding = UDim2.new(0.02,0,0.02,0)
+
+    -- LOGIC CẬP NHẬT MÀU (BAO GỒM RAINBOW)
+    local openBtn -- Khai báo
+    local function UpdateColors(col, bg)
+        menu.BackgroundColor3 = bg
+        mStroke.Color = col
+        title.TextColor3 = col
+        settingsBtn.TextColor3 = col
+        setStroke.Color = col
+        if openBtn then openBtn.BackgroundColor3 = col end
+        -- Cập nhật màu các nút đang bật
+        for _, btn in pairs(grid:GetChildren()) do
+            if btn:IsA("TextButton") and btn.BackgroundColor3 ~= Color3.fromRGB(40,20,20) then
+                btn.BackgroundColor3 = col
+            end
+        end
+    end
+
+    -- Loop Rainbow
+    RunService.RenderStepped:Connect(function()
+        if isRainbow then
+            local hue = tick() % 5 / 5
+            local col = Color3.fromHSV(hue, 1, 1)
+            UpdateColors(col, currentTheme.Bg)
+        end
+    end)
+
+    -- Nút Theme trong Settings
+    for key, val in pairs(THEMES) do
+        local b = Instance.new("TextButton", setScroll); b.Size = UDim2.new(1, 0, 0, 35); b.Text = val.Name; b.BackgroundColor3 = val.Main; b.TextColor3 = Color3.new(0,0,0); b.ZIndex = 202; b.Font = Enum.Font.GothamBold; Instance.new("UICorner", b)
+        b.MouseButton1Click:Connect(function() 
+            isRainbow = false -- Tắt Rainbow khi chọn màu thường
+            currentTheme = THEMES[key]
+            UpdateColors(currentTheme.Main, currentTheme.Bg)
+        end)
+    end
+    -- Nút Rainbow đặc biệt
+    local rbBtn = Instance.new("TextButton", setScroll); rbBtn.Size = UDim2.new(1,0,0,35); rbBtn.Text = "RAINBOW (7 MÀU)"; rbBtn.BackgroundColor3 = Color3.new(1,1,1); rbBtn.TextColor3 = Color3.new(0,0,0); rbBtn.ZIndex=202; rbBtn.Font=Enum.Font.GothamBold; Instance.new("UICorner", rbBtn)
+    local rbGrad = Instance.new("UIGradient", rbBtn); rbGrad.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.new(1,0,0)), ColorSequenceKeypoint.new(0.5, Color3.new(0,1,0)), ColorSequenceKeypoint.new(1, Color3.new(0,0,1))}
+    rbBtn.MouseButton1Click:Connect(function() isRainbow = true end)
+
+    -- HÀM TẠO NÚT
+    local function createBtn(text, id)
+        local btn = Instance.new("TextButton", grid); btn.Text = text; btn.BackgroundColor3 = Color3.fromRGB(40,20,20); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 10; Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
+        btn.MouseButton1Click:Connect(function()
+            if id == "speed_set" then speedFrame.Visible = not speedFrame.Visible
+            elseif id == "spam_set" then spamFrame.Visible = not spamFrame.Visible
+            elseif id == "tp_list" then tpFrame.Visible = not tpFrame.Visible; if tpFrame.Visible then UpdateTPList() end
+            else 
+                config[id] = not config[id]
+                -- Đổi màu dựa trên Theme hiện tại (hoặc Rainbow)
+                local activeColor = isRainbow and mStroke.Color or currentTheme.Main
+                btn.BackgroundColor3 = config[id] and activeColor or Color3.fromRGB(40,20,20)
+                btn.TextColor3 = config[id] and Color3.new(0,0,0) or Color3.new(1,1,1)
+                
+                if id == "speed" and not config.speed and pl.Character then pl.Character.Humanoid.WalkSpeed = 16 end
+            end
+        end)
+        if id == "speed" then RunService.RenderStepped:Connect(function() if config.speed then btn.Text = "⚡ SPEED: " .. customSpeed; btn.TextColor3 = Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3 = currentTheme.Main end else btn.Text = "⚡ SPEED (TẮT)"; btn.BackgroundColor3 = Color3.fromRGB(40,20,20); btn.TextColor3 = Color3.new(1,1,1) end end) end
+    end
+
+    createBtn("⚙️ CÀI SPEED", "speed_set"); createBtn("⚙️ CÀI SPAM", "spam_set"); createBtn("✈️ TELEPORT LIST", "tp_list")
+    createBtn("⚡ SPEED ON/OFF", "speed"); createBtn("💬 SPAM ON/OFF", "spam")
+    createBtn("🛡️ GOD MODE", "god"); createBtn("☠️ KILL ALL", "kill")
+    createBtn("👻 NOCLIP", "noclip"); createBtn("🧲 MAGNET", "magnet"); createBtn("👁️ ESP", "esp")
+
+    RunService.Heartbeat:Connect(function()
+        local char = pl.Character; if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart"); local hum = char:FindFirstChild("Humanoid")
+        if config.speed and hum then hum.WalkSpeed = customSpeed end
+        if config.god and hum then hum.Health = hum.MaxHealth end -- AUTO HEAL (Continuous)
+        if config.noclip or config.kill then for _,v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
+        if config.kill and root then
+            root.AssemblyAngularVelocity = Vector3.new(20000, 20000, 20000)
+            for _, t in pairs(Players:GetPlayers()) do
+                if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
+                    root.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.random(), math.random(), math.random())
+                    root.AssemblyLinearVelocity = Vector3.new(20000, 20000, 20000)
+                end
+            end
+        elseif root then root.AssemblyLinearVelocity = Vector3.zero; root.AssemblyAngularVelocity = Vector3.zero end
+        if config.magnet and root then for _, v in pairs(workspace:GetDescendants()) do if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(char) and (root.Position - v.Position).Magnitude < 100 then v.CanCollide = false; v.CFrame = root.CFrame * CFrame.new(0, 0, -4); v.AssemblyLinearVelocity = Vector3.zero end end end
+    end)
+    task.spawn(function() while true do if config.spam then pcall(function() ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(spamContent, "All") end); pcall(function() TextChatService.TextChannels.RBXGeneral:SendAsync(spamContent) end) end; task.wait(2.5) end end)
+    task.spawn(function() while task.wait(1) do if config.esp then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and not p.Character:FindFirstChild("DeityHighlight") then local h = Instance.new("Highlight", p.Character); h.Name = "DeityHighlight"; h.FillColor = currentTheme.Main end end else for _, v in pairs(workspace:GetDescendants()) do if v.Name == "DeityHighlight" then v:Destroy() end end end end end)
+
+    openBtn = Instance.new("TextButton", gui); openBtn.Size = UDim2.new(0, 55, 0, 55); openBtn.Position = UDim2.new(0, 20, 0.4, 0); openBtn.BackgroundColor3 = currentTheme.Main; openBtn.Text = "T"; openBtn.Font = Enum.Font.GothamBold; openBtn.TextSize = 24; Instance.new("UICorner", openBtn).CornerRadius = UDim.new(1,0)
+    openBtn.MouseButton1Click:Connect(function() menu.Visible = not menu.Visible end)
+    local d, ds, sp
+    openBtn.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then d = true; ds = i.Position; sp = openBtn.Position end end)
+    UIS.InputChanged:Connect(function(i) if d and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then local delta = input.Position - ds; openBtn.Position = UDim2.new(sp.X.Scale, sp.X.Offset + delta.X, sp.Y.Scale, sp.Y.Offset + delta.Y) end end)
+    UIS.InputEnded:Connect(function(i) d = false end)
+end
+
+kBtn.MouseButton1Click:Connect(function()
+    if CheckPass(actualKey) then kBtn.Text = "SUCCESS!"; kBtn.BackgroundColor3 = Color3.fromRGB(0,255,255); task.wait(1); LoadMainMenu()
+    else kBtn.Text = "WRONG KEY!"; kBtn.BackgroundColor3 = Color3.fromRGB(255,0,0); task.wait(1); kBtn.Text = "CHECK KEY"; kBtn.BackgroundColor3 = Color3.fromRGB(0,255,0) end
+end)
