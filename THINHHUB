@@ -42,11 +42,11 @@ local isRainbow = false
 
 -- 2. XÓA GUI CŨ
 for _, v in pairs(pl.PlayerGui:GetChildren()) do
-    if v.Name == "ThinhDeity_V89" then v:Destroy() end
+    if v.Name == "ThinhDeity_V90" then v:Destroy() end
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "ThinhDeity_V89"
+gui.Name = "ThinhDeity_V90"
 gui.Parent = pl.PlayerGui
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
@@ -95,26 +95,33 @@ kBtn.Text = "CHECK KEY"; kBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0); kBtn
 -- ==========================================
 local function LoadMainMenu()
     keyFrame:Destroy()
-    StarterGui:SetCore("SendNotification", {Title = "V89 ACTIVATED", Text = "Đã fix Fly & tăng sức mạnh!", Duration = 5})
+    StarterGui:SetCore("SendNotification", {Title = "V90 CHAOS GOD", Text = "Kill V7 + Spasm Control!", Duration = 5})
 
     local config = { 
         speed=false, jump=false, noclip=false, magnet=false, 
         kill=false, esp=false, god=false, invis=false, 
-        spam=false, killaura=false, spasm=false, hitbox=false, fly=false 
+        spam=false, killaura=false, spasm=false, hitbox=false, fly=false, dance=false 
     }
-    local customSpeed, customJump, customHitbox, customFly, spamContent = 75, 50, 10, 50, "THINH DEITY ON TOP"
+    local customSpeed, customJump, customHitbox, customFly, customSpasm, spamContent = 75, 50, 10, 50, 20, "THINH DEITY ON TOP"
 
     -- UI CHÍNH
     local menu = Instance.new("Frame", gui); menu.Size = UDim2.new(0, 480, 0, 320); menu.Position = UDim2.new(0.5, -240, 0.5, -160); menu.BackgroundColor3 = currentTheme.Bg
     menu.Visible = true; menu.Active = true; menu.Draggable = true; menu.ZIndex = 1; Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 10)
     local mStroke = Instance.new("UIStroke", menu); mStroke.Color = currentTheme.Main; mStroke.Thickness = 2
-    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V89"; title.Size = UDim2.new(0.7, 0, 0, 30); title.Position = UDim2.new(0, 15, 0, 5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
+    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V90"; title.Size = UDim2.new(0.7, 0, 0, 30); title.Position = UDim2.new(0, 15, 0, 5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
     
     -- INFO BAR
     local infoLabel = Instance.new("TextLabel", menu); infoLabel.Size = UDim2.new(0.9, 0, 0, 30); infoLabel.Position = UDim2.new(0.03, 0, 0.88, 0); infoLabel.BackgroundTransparency = 1; infoLabel.TextColor3 = Color3.fromRGB(180, 180, 180); infoLabel.Font = Enum.Font.Code; infoLabel.TextSize = 10; infoLabel.TextXAlignment = Enum.TextXAlignment.Left
     RunService.RenderStepped:Connect(function() local fps = math.floor(1 / RunService.RenderStepped:Wait()); infoLabel.Text = string.format("👤 USER: %s | 🎮 GAME: %s | 📊 FPS: %d", pl.Name, gameName, fps) end)
 
     local settingsBtn = Instance.new("TextButton", menu); settingsBtn.Size = UDim2.new(0, 80, 0, 30); settingsBtn.Position = UDim2.new(0.8, 0, 0.02, 0); settingsBtn.Text = "⚙️ CÀI ĐẶT"; settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,50); settingsBtn.TextColor3 = currentTheme.Main; settingsBtn.Font = Enum.Font.GothamBold; settingsBtn.TextSize = 10; Instance.new("UICorner", settingsBtn)
+
+    -- [POPUP: SPASM (MỚI)]
+    local spasmFrame = Instance.new("Frame", gui); spasmFrame.Visible=false; spasmFrame.Size=UDim2.new(0,250,0,150); spasmFrame.Position=UDim2.new(0.5,0,0.4,0); spasmFrame.AnchorPoint=Vector2.new(0.5,0.5); spasmFrame.BackgroundColor3=Color3.fromRGB(25,25,30); spasmFrame.ZIndex=200; Instance.new("UICorner", spasmFrame); local smStroke = Instance.new("UIStroke", spasmFrame); smStroke.Color=Color3.new(1,1,1)
+    local smTitle = Instance.new("TextLabel", spasmFrame); smTitle.Text="TỐC ĐỘ CO GIẬT"; smTitle.Size=UDim2.new(1,0,0,30); smTitle.TextColor3=Color3.new(1,1,1); smTitle.BackgroundTransparency=1; smTitle.ZIndex=201
+    local smInput = Instance.new("TextBox", spasmFrame); smInput.Size=UDim2.new(0.8,0,0.3,0); smInput.Position=UDim2.new(0.1,0,0.25,0); smInput.Text=tostring(customSpasm); smInput.ZIndex=201; Instance.new("UICorner", smInput)
+    local smApply = Instance.new("TextButton", spasmFrame); smApply.Size=UDim2.new(0.4,0,0.25,0); smApply.Position=UDim2.new(0.3,0,0.65,0); smApply.Text="OK"; smApply.BackgroundColor3=Color3.new(0,1,0); smApply.ZIndex=201; Instance.new("UICorner", smApply)
+    smApply.MouseButton1Click:Connect(function() customSpasm = tonumber(smInput.Text) or 20; config.spasm = true; spasmFrame.Visible = false end)
 
     -- [POPUP: FLY]
     local flyFrame = Instance.new("Frame", gui); flyFrame.Visible=false; flyFrame.Size=UDim2.new(0,250,0,150); flyFrame.Position=UDim2.new(0.5,0,0.4,0); flyFrame.AnchorPoint=Vector2.new(0.5,0.5); flyFrame.BackgroundColor3=Color3.fromRGB(25,25,30); flyFrame.ZIndex=200; Instance.new("UICorner", flyFrame); local flStroke = Instance.new("UIStroke", flyFrame); flStroke.Color=Color3.new(1,1,1)
@@ -189,6 +196,7 @@ local function LoadMainMenu()
             elseif id == "hitbox_set" then hbFrame.Visible = not hbFrame.Visible
             elseif id == "spam_set" then spamFrame.Visible = not spamFrame.Visible
             elseif id == "fly_set" then flyFrame.Visible = not flyFrame.Visible
+            elseif id == "spasm_set" then spasmFrame.Visible = not spasmFrame.Visible -- Bảng Spasm
             elseif id == "tp_list" then tpFrame.Visible = not tpFrame.Visible; if tpFrame.Visible then UpdateTPList() end
             elseif id == "view_list" then viewFrame.Visible = not viewFrame.Visible; if viewFrame.Visible then UpdateViewList() end
             else 
@@ -202,23 +210,24 @@ local function LoadMainMenu()
                 if id == "hitbox" and not config.hitbox then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1); p.Character.HumanoidRootPart.Transparency = 1 end end end
                 if id == "fly" and not config.fly and pl.Character and pl.Character.HumanoidRootPart:FindFirstChild("DeityFly") then pl.Character.HumanoidRootPart.DeityFly:Destroy() end
                 if id == "esp" and not config.esp then for _, p in pairs(Players:GetPlayers()) do if p.Character and p.Character:FindFirstChild("DeityESP") then p.Character.DeityESP:Destroy() end end end
+                -- God Mode Reset
+                if id == "god" and not config.god and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then pl.Character.HumanoidRootPart.Transparency = 1; pl.Character.HumanoidRootPart.CanCollide = true end
             end
         end)
         if id == "speed" then RunService.RenderStepped:Connect(function() if config.speed then btn.Text = "⚡ SPEED: " .. customSpeed; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="⚡ SPEED ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
         if id == "jump" then RunService.RenderStepped:Connect(function() if config.jump then btn.Text = "🦘 JUMP: " .. customJump; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="🦘 JUMP ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
         if id == "hitbox" then RunService.RenderStepped:Connect(function() if config.hitbox then btn.Text = "🎯 HITBOX: " .. customHitbox; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="🎯 HITBOX ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
         if id == "fly" then RunService.RenderStepped:Connect(function() if config.fly then btn.Text = "✈️ FLY: " .. customFly; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="✈️ FLY ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
+        if id == "spasm" then RunService.RenderStepped:Connect(function() if config.spasm then btn.Text = "⚡ SPASM: " .. customSpasm; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="⚡ SPASM ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
     end
 
+    createBtn("⚙️ CÀI SPEED", "speed_set"); createBtn("⚙️ CÀI JUMP", "jump_set"); createBtn("⚙️ CÀI HITBOX", "hitbox_set")
+    createBtn("⚡ SPEED ON/OFF", "speed"); createBtn("🦘 JUMP ON/OFF", "jump"); createBtn("🎯 HITBOX ON/OFF", "hitbox")
+    createBtn("⚙️ CÀI SPAM", "spam_set"); createBtn("⚙️ CÀI SPASM", "spasm_set"); createBtn("⚙️ CÀI FLY", "fly_set")
+    createBtn("💬 SPAM ON/OFF", "spam"); createBtn("⚡ SPASM ON/OFF", "spasm"); createBtn("✈️ FLY ON/OFF", "fly")
+    createBtn("👁️ VIEW PLAYER", "view_list"); createBtn("✈️ TP LIST", "tp_list"); createBtn("💃 NHẢY (DANCE)", "dance")
+    createBtn("🛡️ GOD MODE", "god"); createBtn("☠️ KILL ALL V7", "kill"); createBtn("👻 NOCLIP", "noclip")
     createBtn("👁️ ESP (XUYÊN TƯỜNG)", "esp"); createBtn("🧲 MAGNET (HÚT ĐỒ)", "magnet")
-    createBtn("⚙️ CÀI SPEED", "speed_set"); createBtn("⚙️ CÀI JUMP", "jump_set")
-    createBtn("⚙️ CÀI HITBOX", "hitbox_set"); createBtn("⚙️ CÀI FLY", "fly_set")
-    createBtn("⚡ SPEED ON/OFF", "speed"); createBtn("🦘 JUMP ON/OFF", "jump")
-    createBtn("🎯 HITBOX ON/OFF", "hitbox"); createBtn("✈️ FLY ON/OFF", "fly")
-    createBtn("⚡ CO GIẬT", "spasm"); createBtn("⚙️ CÀI SPAM", "spam_set"); createBtn("💬 SPAM ON/OFF", "spam")
-    createBtn("👁️ VIEW PLAYER", "view_list"); createBtn("✈️ TP LIST", "tp_list")
-    createBtn("🛡️ GOD MODE", "god"); createBtn("☠️ KILL ALL V6", "kill")
-    createBtn("👻 NOCLIP", "noclip")
 
     -- PHYSICS LOOP
     RunService.Heartbeat:Connect(function()
@@ -227,33 +236,39 @@ local function LoadMainMenu()
         
         if config.speed and hum then hum.WalkSpeed = customSpeed end
         if config.jump and hum then hum.UseJumpPower = true; hum.JumpPower = customJump end
-        if config.god and hum then hum.Health = hum.MaxHealth; for _,v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide=false end end end -- God + Invis Hitbox
         if config.noclip or config.kill then for _,v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
-        if config.spasm and root then root.CFrame = root.CFrame * CFrame.Angles(math.rad(math.random(-30,30)), math.rad(math.random(-30,30)), math.rad(math.random(-30,30))) end
+        
+        -- GOD MODE (HIDE HITBOX + HEAL)
+        if config.god and hum and root then 
+            hum.Health = hum.MaxHealth
+            root.Transparency = 1 -- Giấu thân
+            root.CanCollide = false -- Chống va chạm
+        end
 
-        -- LOGIC FLY (FIX REVERSE)
+        -- SPASM (CUSTOM SPEED)
+        if config.spasm and root then 
+            root.CFrame = root.CFrame * CFrame.Angles(math.rad(math.random(-customSpasm, customSpasm)), math.rad(math.random(-customSpasm, customSpasm)), math.rad(math.random(-customSpasm, customSpasm))) 
+        end
+
+        -- DANCE
+        if config.dance and root and hum then
+            -- Simple Physics Dance (Spin + Hop)
+            root.RotVelocity = Vector3.new(0, 50, 0)
+            if hum.FloorMaterial ~= Enum.Material.Air then hum.Jump = true end
+        end
+
+        -- FLY
         if config.fly and root and hum then
             local bv = root:FindFirstChild("DeityFly") or Instance.new("BodyVelocity", root)
             bv.Name = "DeityFly"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            local cam = Workspace.CurrentCamera
-            local move = Vector3.zero
-            
-            -- FIX: Sử dụng LookVector đúng hướng
+            local move, cam = Vector3.zero, Workspace.CurrentCamera
             if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector end
             if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector end
             if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector end
             if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector end
-            
-            -- FIX: Mobile Joystick
-            if hum.MoveDirection.Magnitude > 0 then
-                move = hum.MoveDirection
-                move = Vector3.new(move.X, cam.CFrame.LookVector.Y, move.Z) -- Bay theo hướng nhìn
-            end
-            
+            if hum.MoveDirection.Magnitude > 0 then move = hum.MoveDirection; move = Vector3.new(move.X, cam.CFrame.LookVector.Y, move.Z) end
             bv.Velocity = move * customFly
-        elseif root then
-            if root:FindFirstChild("DeityFly") then root.DeityFly:Destroy() end
-        end
+        elseif root and root:FindFirstChild("DeityFly") then root.DeityFly:Destroy() end
 
         if config.hitbox then
             for _, p in pairs(Players:GetPlayers()) do
@@ -265,48 +280,22 @@ local function LoadMainMenu()
             end
         end
 
-        -- KILL ALL V6 (FASTER LOOP)
+        -- KILL ALL V7 (MULTI-ANGLE TELEPORT + FORCE)
         if config.kill and root then
-            root.AssemblyAngularVelocity = Vector3.new(9e9, 9e9, 9e9) -- Max Rotation
+            root.AssemblyAngularVelocity = Vector3.new(9e18, 9e18, 9e18) -- Infinity Force
             for _, t in pairs(Players:GetPlayers()) do
                 if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
-                    -- Teleport inside target RAPIDLY
-                    root.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0)
-                    root.AssemblyLinearVelocity = Vector3.new(9e9, 9e9, 9e9)
+                    -- Attack from randomly offset positions to break physics
+                    local offset = Vector3.new(math.random(-2,2), math.random(-2,2), math.random(-2,2))
+                    root.CFrame = t.Character.HumanoidRootPart.CFrame + offset
+                    root.AssemblyLinearVelocity = Vector3.new(9e18, 9e18, 9e18)
                 end
             end
         end
-        -- LOGIC MAGNET
-        if config.magnet and root then
-            for _, v in pairs(Workspace:GetDescendants()) do
-                if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(char) then
-                    local dist = (root.Position - v.Position).Magnitude
-                    if dist < 150 then -- Radius 150
-                        v.CanCollide = false
-                        v.CFrame = root.CFrame * CFrame.new(0, 0, -3) -- Fly to front
-                        v.AssemblyLinearVelocity = Vector3.new(0,0,0)
-                    end
-                end
-            end
-        end
+        if config.magnet and root then for _, v in pairs(Workspace:GetDescendants()) do if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(char) and (root.Position - v.Position).Magnitude < 150 then v.CanCollide = false; v.CFrame = root.CFrame * CFrame.new(0, 0, -3); v.AssemblyLinearVelocity = Vector3.zero end end end
     end)
     task.spawn(function() while true do if config.spam then pcall(function() ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(spamContent, "All") end); pcall(function() TextChatService.TextChannels.RBXGeneral:SendAsync(spamContent) end) end; task.wait(2.5) end end)
-    
-    -- LOGIC ESP
-    task.spawn(function() 
-        while task.wait(1) do 
-            if config.esp then 
-                for _, p in pairs(Players:GetPlayers()) do 
-                    if p ~= pl and p.Character then 
-                        if not p.Character:FindFirstChild("DeityESP") then
-                            local h = Instance.new("Highlight", p.Character)
-                            h.Name = "DeityESP"; h.FillColor = Color3.fromRGB(255,0,0); h.OutlineColor = Color3.new(1,1,1); h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                        end
-                    end 
-                end 
-            end 
-        end 
-    end)
+    task.spawn(function() while task.wait(1) do if config.esp then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and not p.Character:FindFirstChild("DeityHighlight") then local h = Instance.new("Highlight", p.Character); h.Name = "DeityHighlight"; h.FillColor = currentTheme.Main; h.OutlineColor = Color3.new(1,1,1); h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop end end end end end)
 
     openBtn = Instance.new("TextButton", gui); openBtn.Size = UDim2.new(0, 55, 0, 55); openBtn.Position = UDim2.new(0, 20, 0.4, 0); openBtn.BackgroundColor3 = currentTheme.Main; openBtn.Text = "T"; openBtn.Font = Enum.Font.GothamBold; openBtn.TextSize = 24; Instance.new("UICorner", openBtn).CornerRadius = UDim.new(1,0)
     openBtn.MouseButton1Click:Connect(function() menu.Visible = not menu.Visible end)
@@ -320,3 +309,4 @@ kBtn.MouseButton1Click:Connect(function()
     if CheckPass(actualKey) then kBtn.Text = "SUCCESS!"; kBtn.BackgroundColor3 = Color3.fromRGB(0,255,255); task.wait(1); LoadMainMenu()
     else kBtn.Text = "WRONG KEY!"; kBtn.BackgroundColor3 = Color3.fromRGB(255,0,0); task.wait(1); kBtn.Text = "CHECK KEY"; kBtn.BackgroundColor3 = Color3.fromRGB(0,255,0) end
 end)
+
