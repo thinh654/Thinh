@@ -1,4 +1,4 @@
--- 1. CHỜ GAME TẢI
+-- 1. CHỜ GAME TẢI & KHỞI TẠO DỊCH VỤ
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 local Players = game:GetService("Players")
@@ -9,6 +9,7 @@ local StarterGui = game:GetService("StarterGui")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
+local Lighting = game:GetService("Lighting")
 
 local pl = Players.LocalPlayer
 local mouse = pl:GetMouse()
@@ -50,11 +51,11 @@ local isRainbow = false
 
 -- 2. XÓA GUI CŨ
 for _, v in pairs(pl.PlayerGui:GetChildren()) do
-    if v.Name == "ThinhDeity_V94" then v:Destroy() end
+    if v.Name == "ThinhDeity_V96" then v:Destroy() end
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "ThinhDeity_V94"
+gui.Name = "ThinhDeity_V96"
 gui.Parent = pl.PlayerGui
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
@@ -65,7 +66,7 @@ gui.DisplayOrder = 9999
 -- ==========================================
 local keyFrame = Instance.new("Frame", gui); keyFrame.Size=UDim2.new(0,400,0,240); keyFrame.Position=UDim2.new(0.5,0,0.5,0); keyFrame.AnchorPoint=Vector2.new(0.5,0.5); keyFrame.BackgroundColor3=Color3.fromRGB(15,15,20); keyFrame.Visible=true; keyFrame.Active=true; keyFrame.Draggable=true
 Instance.new("UICorner", keyFrame).CornerRadius=UDim.new(0,10); local kStr=Instance.new("UIStroke",keyFrame); kStr.Color=Color3.fromRGB(255,255,0); kStr.Thickness=2
-local kTitle = Instance.new("TextLabel", keyFrame); kTitle.Text="THINH DEITY V94"; kTitle.Size=UDim2.new(1,0,0,40); kTitle.TextColor3=Color3.fromRGB(255,255,0); kTitle.Font=Enum.Font.GothamBold; kTitle.TextSize=18; kTitle.BackgroundTransparency=1
+local kTitle = Instance.new("TextLabel", keyFrame); kTitle.Text="THINH DEITY V96"; kTitle.Size=UDim2.new(1,0,0,40); kTitle.TextColor3=Color3.fromRGB(255,255,0); kTitle.Font=Enum.Font.GothamBold; kTitle.TextSize=18; kTitle.BackgroundTransparency=1
 local kInput = Instance.new("TextBox", keyFrame); kInput.Size=UDim2.new(0.7,0,0.18,0); kInput.Position=UDim2.new(0.1,0,0.25,0); kInput.BackgroundColor3=Color3.fromRGB(40,40,50); kInput.TextColor3=Color3.new(1,1,1); kInput.Text=""; kInput.PlaceholderText="Nhập Key..."; Instance.new("UICorner", kInput)
 
 local actualKey, isTyping, isHidden = "", false, true
@@ -85,28 +86,42 @@ discordBtn.MouseButton1Click:Connect(function() setclipboard(DISCORD_LINK); disc
 local kBtn = Instance.new("TextButton", keyFrame); kBtn.Size=UDim2.new(0.4,0,0.2,0); kBtn.Position=UDim2.new(0.3,0,0.75,0); kBtn.Text="CHECK KEY"; kBtn.BackgroundColor3=Color3.fromRGB(0,255,0); kBtn.Font=Enum.Font.GothamBold; Instance.new("UICorner", kBtn)
 
 -- ==========================================
--- PHẦN 2: MAIN MENU & POPUPS
+-- PHẦN 2: MAIN MENU & FUNCTIONS
 -- ==========================================
 local function LoadMainMenu()
     keyFrame:Destroy()
-    StarterGui:SetCore("SendNotification", {Title = "V94 SELECTOR", Text = "Chọn hình dáng Ring!", Duration = 5})
+    StarterGui:SetCore("SendNotification", {Title = "V96 DOOMSDAY", Text = "Kill All V8 Max Power!", Duration = 5})
 
     local config = { speed=false, jump=false, noclip=false, magnet=false, kill=false, esp=false, god=false, invis=false, spam=false, killaura=false, spasm=false, hitbox=false, fly=false, clicktp=false, antifall=false, ring=false }
     local customSpeed, customJump, customHitbox, customFly, customSpasm, spamContent = 75, 50, 10, 50, 20, "THINH DEITY ON TOP"
-    local ringShape = "Ball" -- Default
+    local ringShape = "Ball"
 
     -- UI CHÍNH
     local menu = Instance.new("Frame", gui); menu.Size = UDim2.new(0, 480, 0, 360); menu.Position = UDim2.new(0.5, -240, 0.5, -180); menu.BackgroundColor3 = currentTheme.Bg
     menu.Visible = true; menu.Active = true; menu.Draggable = true; menu.ZIndex = 1; Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 10)
     local mStroke = Instance.new("UIStroke", menu); mStroke.Color = currentTheme.Main; mStroke.Thickness = 2
-    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V94"; title.Size = UDim2.new(0.7,0,0,30); title.Position = UDim2.new(0,15,0,5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
+    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V96"; title.Size = UDim2.new(0.7,0,0,30); title.Position = UDim2.new(0,15,0,5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
     
     local infoLabel = Instance.new("TextLabel", menu); infoLabel.Size = UDim2.new(0.9,0,0,30); infoLabel.Position = UDim2.new(0.03,0,0.89,0); infoLabel.BackgroundTransparency=1; infoLabel.TextColor3=Color3.fromRGB(180,180,180); infoLabel.Font=Enum.Font.Code; infoLabel.TextSize=10; infoLabel.TextXAlignment=Enum.TextXAlignment.Left
     RunService.RenderStepped:Connect(function() local fps=math.floor(1/RunService.RenderStepped:Wait()); infoLabel.Text=string.format("USER: %s | GAME: %s | FPS: %d", pl.Name, gameName, fps) end)
 
     local settingsBtn = Instance.new("TextButton", menu); settingsBtn.Size = UDim2.new(0,80,0,30); settingsBtn.Position = UDim2.new(0.8,0,0.02,0); settingsBtn.Text = "⚙️ CÀI ĐẶT"; settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,50); settingsBtn.TextColor3 = currentTheme.Main; settingsBtn.Font = Enum.Font.GothamBold; settingsBtn.TextSize = 10; Instance.new("UICorner", settingsBtn)
 
-    -- [HELPER FUNCTION: CREATE POPUP]
+    -- [OPTIMIZED FUNCTIONS]
+    local function BoostFPS()
+        local t = Workspace.Terrain; t.WaterWaveSize=0; t.WaterAnimationDirection=Vector2.new(0,0); t.WaterReflectance=0; t.WaterTransparency=0
+        Lighting.GlobalShadows=false; Lighting.FogEnd=9e9
+        for _,v in pairs(game:GetDescendants()) do if v:IsA("BasePart") then v.Material=Enum.Material.SmoothPlastic; v.Reflectance=0 elseif v:IsA("Decal") or v:IsA("Texture") then v.Transparency=1 elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then v.Enabled=false end end
+        StarterGui:SetCore("SendNotification", {Title="FPS BOOST", Text="Đã tối ưu hóa!", Duration=3})
+    end
+
+    local function GrabItems()
+        local old = pl.Character.HumanoidRootPart.CFrame; local c = 0
+        for _,v in pairs(Workspace:GetDescendants()) do if (v:IsA("Tool") or (v:IsA("BasePart") and v.Name=="Handle")) and not v:IsDescendantOf(pl.Character) then if v:IsA("BasePart") then pl.Character.HumanoidRootPart.CFrame=v.CFrame elseif v:IsA("Tool") and v.Handle then pl.Character.HumanoidRootPart.CFrame=v.Handle.CFrame end; wait(0.05); c=c+1 end end
+        pl.Character.HumanoidRootPart.CFrame = old; StarterGui:SetCore("SendNotification", {Title="ITEM GRABBER", Text="Đã nhặt "..c.." item!", Duration=3})
+    end
+
+    -- [HELPER: POPUP]
     local function CreatePopup(name, varRef, applyFunc)
         local f = Instance.new("Frame", gui); f.Visible=false; f.Size=UDim2.new(0,250,0,150); f.Position=UDim2.new(0.5,0,0.4,0); f.AnchorPoint=Vector2.new(0.5,0.5); f.BackgroundColor3=Color3.fromRGB(25,25,30); f.ZIndex=200; Instance.new("UICorner", f); local s = Instance.new("UIStroke", f); s.Color=Color3.new(1,1,1)
         local t = Instance.new("TextLabel", f); t.Text=name; t.Size=UDim2.new(1,0,0,30); t.TextColor3=Color3.new(1,1,1); t.BackgroundTransparency=1; t.ZIndex=201
@@ -116,49 +131,15 @@ local function LoadMainMenu()
         return f
     end
 
-    -- POPUPS
     local speedFrame = CreatePopup("CÀI SPEED", customSpeed, function(v) customSpeed=tonumber(v) or 75; config.speed=true end)
     local jumpFrame = CreatePopup("CÀI JUMP", customJump, function(v) customJump=tonumber(v) or 50; config.jump=true end)
     local hbFrame = CreatePopup("CÀI HITBOX", customHitbox, function(v) customHitbox=tonumber(v) or 10; config.hitbox=true end)
     local flyFrame = CreatePopup("CÀI FLY", customFly, function(v) customFly=tonumber(v) or 50; config.fly=true end)
     local spasmFrame = CreatePopup("CÀI SPASM", customSpasm, function(v) customSpasm=tonumber(v) or 20; config.spasm=true end)
 
-    -- RING SHAPE SELECTOR (MỚI)
     local ringSelFrame = Instance.new("Frame", gui); ringSelFrame.Visible=false; ringSelFrame.Size=UDim2.new(0,300,0,200); ringSelFrame.Position=UDim2.new(0.5,0,0.4,0); ringSelFrame.AnchorPoint=Vector2.new(0.5,0.5); ringSelFrame.BackgroundColor3=Color3.fromRGB(20,20,30); ringSelFrame.ZIndex=200; Instance.new("UICorner", ringSelFrame); Instance.new("UIStroke", ringSelFrame).Color=Color3.fromRGB(0,255,255)
-    local rsTitle = Instance.new("TextLabel", ringSelFrame); rsTitle.Text="CHỌN HÌNH DÁNG RING"; rsTitle.Size=UDim2.new(1,0,0,40); rsTitle.TextColor3=Color3.new(1,1,1); rsTitle.BackgroundTransparency=1; rsTitle.ZIndex=201
-    
-    local function makeRingBtn(txt, shape, pos)
-        local b = Instance.new("TextButton", ringSelFrame); b.Size=UDim2.new(0.8,0,0.2,0); b.Position=UDim2.new(0.1,0,pos,0); b.Text=txt; b.BackgroundColor3=Color3.fromRGB(40,40,50); b.TextColor3=Color3.new(1,1,1); b.ZIndex=201; Instance.new("UICorner", b)
-        b.MouseButton1Click:Connect(function() 
-            ringShape = shape
-            config.ring = true
-            ringSelFrame.Visible = false 
-            if pl.Character and pl.Character:FindFirstChild("DeityRing") then pl.Character.DeityRing:Destroy() end -- Reset Ring
-        end)
-    end
-    makeRingBtn("🔮 PHA LÊ (CRYSTAL)", "Crystal", 0.25)
-    makeRingBtn("⚫ HÌNH TRÒN (BALL)", "Ball", 0.5)
-    makeRingBtn("⚡ SẤM CHỚP (LIGHTNING)", "Lightning", 0.75)
-
-
-    local spamFrame = Instance.new("Frame", gui); spamFrame.Visible=false; spamFrame.Size=UDim2.new(0,300,0,180); spamFrame.Position=UDim2.new(0.5,0,0.4,0); spamFrame.AnchorPoint=Vector2.new(0.5,0.5); spamFrame.BackgroundColor3=Color3.fromRGB(25,25,30); spamFrame.ZIndex=200; Instance.new("UICorner", spamFrame); Instance.new("UIStroke", spamFrame).Color=Color3.new(1,1,0)
-    local smInput = Instance.new("TextBox", spamFrame); smInput.Size=UDim2.new(0.9,0,0.3,0); smInput.Position=UDim2.new(0.05,0,0.15,0); smInput.Text=""; smInput.PlaceholderText="Nhập tin..."; smInput.ZIndex=201; Instance.new("UICorner", smInput)
-    local smStart = Instance.new("TextButton", spamFrame); smStart.Size=UDim2.new(0.4,0,0.25,0); smStart.Position=UDim2.new(0.05,0,0.6,0); smStart.Text="BẮT ĐẦU"; smStart.BackgroundColor3=Color3.new(0,1,0); smStart.ZIndex=201; Instance.new("UICorner", smStart)
-    local smStop = Instance.new("TextButton", spamFrame); smStop.Size=UDim2.new(0.4,0,0.25,0); smStop.Position=UDim2.new(0.55,0,0.6,0); smStop.Text="DỪNG"; smStop.BackgroundColor3=Color3.new(1,0,0); smStop.ZIndex=201; Instance.new("UICorner", smStop)
-    smStart.MouseButton1Click:Connect(function() if smInput.Text~="" then spamContent=smInput.Text end; config.spam=true; spamFrame.Visible=false end)
-    smStop.MouseButton1Click:Connect(function() config.spam=false end)
-
-    local tpFrame = Instance.new("Frame", gui); tpFrame.Visible=false; tpFrame.Size=UDim2.new(0,250,0,350); tpFrame.Position=UDim2.new(0.85,0,0.5,0); tpFrame.AnchorPoint=Vector2.new(0.5,0.5); tpFrame.BackgroundColor3=Color3.fromRGB(15,15,25); tpFrame.ZIndex=200; Instance.new("UICorner", tpFrame); Instance.new("UIStroke", tpFrame).Color=Color3.fromRGB(0,150,255)
-    local tpScroll = Instance.new("ScrollingFrame", tpFrame); tpScroll.Size=UDim2.new(0.9,0,0.75,0); tpScroll.Position=UDim2.new(0.05,0,0.12,0); tpScroll.ZIndex=201; Instance.new("UIListLayout", tpScroll).Padding=UDim.new(0,5)
-    local tpClose = Instance.new("TextButton", tpFrame); tpClose.Size=UDim2.new(0.9,0,0.1,0); tpClose.Position=UDim2.new(0.05,0,0.88,0); tpClose.Text="ĐÓNG"; tpClose.BackgroundColor3=Color3.new(1,0,0); tpClose.ZIndex=201; Instance.new("UICorner", tpClose)
-    tpClose.MouseButton1Click:Connect(function() tpFrame.Visible=false end)
-    local function UpdateTPList() for _,v in pairs(tpScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end for _,p in pairs(Players:GetPlayers()) do if p~=pl then local b=Instance.new("TextButton",tpScroll); b.Size=UDim2.new(1,0,0,30); b.Text=p.Name; b.BackgroundColor3=Color3.fromRGB(40,40,50); b.TextColor3=Color3.new(1,1,1); b.ZIndex=202; Instance.new("UICorner",b); b.MouseButton1Click:Connect(function() if p.Character then pl.Character.HumanoidRootPart.CFrame=p.Character.HumanoidRootPart.CFrame*CFrame.new(0,3,0) end end) end end end
-
-    local viewFrame = Instance.new("Frame", gui); viewFrame.Visible=false; viewFrame.Size=UDim2.new(0,250,0,350); viewFrame.Position=UDim2.new(0.15,0,0.5,0); viewFrame.AnchorPoint=Vector2.new(0.5,0.5); viewFrame.BackgroundColor3=Color3.fromRGB(20,25,20); viewFrame.ZIndex=200; Instance.new("UICorner", viewFrame); Instance.new("UIStroke", viewFrame).Color=Color3.fromRGB(0,255,100)
-    local viewScroll = Instance.new("ScrollingFrame", viewFrame); viewScroll.Size=UDim2.new(0.9,0,0.7,0); viewScroll.Position=UDim2.new(0.05,0,0.12,0); viewScroll.ZIndex=201; Instance.new("UIListLayout", viewScroll).Padding=UDim.new(0,5)
-    local unviewBtn = Instance.new("TextButton", viewFrame); unviewBtn.Size=UDim2.new(0.9,0,0.1,0); unviewBtn.Position=UDim2.new(0.05,0,0.85,0); unviewBtn.Text="UNVIEW"; unviewBtn.BackgroundColor3=Color3.new(1,0,0); unviewBtn.ZIndex=201; Instance.new("UICorner", unviewBtn)
-    local function UpdateViewList() for _,v in pairs(viewScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end for _,p in pairs(Players:GetPlayers()) do if p~=pl then local b=Instance.new("TextButton",viewScroll); b.Size=UDim2.new(1,0,0,30); b.Text=p.Name; b.BackgroundColor3=Color3.fromRGB(30,40,30); b.TextColor3=Color3.new(1,1,1); b.ZIndex=202; Instance.new("UICorner",b); b.MouseButton1Click:Connect(function() if p.Character and p.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject=p.Character.Humanoid end end) end end end
-    unviewBtn.MouseButton1Click:Connect(function() Workspace.CurrentCamera.CameraSubject=pl.Character.Humanoid; viewFrame.Visible=false end)
+    local function makeRingBtn(txt, shape, pos) local b = Instance.new("TextButton", ringSelFrame); b.Size=UDim2.new(0.8,0,0.2,0); b.Position=UDim2.new(0.1,0,pos,0); b.Text=txt; b.BackgroundColor3=Color3.fromRGB(40,40,50); b.TextColor3=Color3.new(1,1,1); b.ZIndex=201; Instance.new("UICorner", b); b.MouseButton1Click:Connect(function() ringShape=shape; config.ring=true; ringSelFrame.Visible=false; if pl.Character:FindFirstChild("DeityRing") then pl.Character.DeityRing:Destroy() end end) end
+    makeRingBtn("🔮 PHA LÊ (CRYSTAL)", "Crystal", 0.15); makeRingBtn("⚫ HÌNH TRÒN (BALL)", "Ball", 0.45); makeRingBtn("⚡ SẤM CHỚP (LIGHTNING)", "Lightning", 0.75)
 
     local setFrame = Instance.new("Frame", gui); setFrame.Visible=false; setFrame.Size=UDim2.new(0,250,0,350); setFrame.Position=UDim2.new(0.85,0,0.5,0); setFrame.AnchorPoint=Vector2.new(0.5,0.5); setFrame.BackgroundColor3=Color3.fromRGB(20,20,30); setFrame.ZIndex=200; Instance.new("UICorner", setFrame); local setStroke = Instance.new("UIStroke", setFrame); setStroke.Color=currentTheme.Main; setStroke.Thickness=2
     local setScroll = Instance.new("ScrollingFrame", setFrame); setScroll.Size=UDim2.new(0.9,0,0.75,0); setScroll.Position=UDim2.new(0.05,0,0.12,0); setScroll.ZIndex=201; Instance.new("UIListLayout", setScroll).Padding=UDim.new(0,5)
@@ -174,23 +155,23 @@ local function LoadMainMenu()
     for key, val in pairs(THEMES) do local b=Instance.new("TextButton", setScroll); b.Size=UDim2.new(1,0,0,35); b.Text=val.Name; b.BackgroundColor3=val.Main; b.TextColor3=Color3.new(0,0,0); b.ZIndex=202; Instance.new("UICorner", b); b.MouseButton1Click:Connect(function() isRainbow=false; currentTheme=THEMES[key]; UpdateColors(currentTheme.Main, currentTheme.Bg) end) end
     local rbBtn=Instance.new("TextButton", setScroll); rbBtn.Size=UDim2.new(1,0,0,35); rbBtn.Text="RAINBOW"; rbBtn.BackgroundColor3=Color3.new(1,1,1); rbBtn.TextColor3=Color3.new(0,0,0); rbBtn.ZIndex=202; Instance.new("UICorner", rbBtn); rbBtn.MouseButton1Click:Connect(function() isRainbow=true end)
 
-    -- [CLICK TP LOGIC]
+    -- [CLICK TP]
     local function TeleportToMouse() if mouse.Target then pl.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.p + Vector3.new(0,3,0)) end end
     mouse.Button1Down:Connect(function() if config.clicktp and UIS:IsKeyDown(Enum.KeyCode.LeftControl) then TeleportToMouse() end end)
 
-    -- MAIN BUTTONS
+    -- BUTTON CREATOR
     local function createBtn(text, id)
         local btn = Instance.new("TextButton", grid); btn.Text = text; btn.BackgroundColor3 = Color3.fromRGB(40,20,20); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 10; Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
         btn.MouseButton1Click:Connect(function()
             if id == "speed_set" then speedFrame.Visible = not speedFrame.Visible
             elseif id == "jump_set" then jumpFrame.Visible = not jumpFrame.Visible
             elseif id == "hitbox_set" then hbFrame.Visible = not hbFrame.Visible
-            elseif id == "spam_set" then spamFrame.Visible = not spamFrame.Visible
             elseif id == "fly_set" then flyFrame.Visible = not flyFrame.Visible
             elseif id == "spasm_set" then spasmFrame.Visible = not spasmFrame.Visible
-            elseif id == "tp_list" then tpFrame.Visible = not tpFrame.Visible; if tpFrame.Visible then UpdateTPList() end
-            elseif id == "view_list" then viewFrame.Visible = not viewFrame.Visible; if viewFrame.Visible then UpdateViewList() end
-            elseif id == "ring_set" then ringSelFrame.Visible = not ringSelFrame.Visible -- Toggle Ring Menu
+            elseif id == "ring_set" then ringSelFrame.Visible = not ringSelFrame.Visible
+            elseif id == "fps_boost" then BoostFPS()
+            elseif id == "item_grab" then GrabItems()
+            elseif id == "antiban" then for k,v in pairs(config) do config[k] = false end; pl.Character.Humanoid.WalkSpeed=16; pl.Character.Humanoid.JumpPower=50; StarterGui:SetCore("SendNotification", {Title="SAFE MODE", Text="Đã tắt toàn bộ hack!", Duration=3})
             else 
                 config[id] = not config[id]
                 local activeColor = isRainbow and mStroke.Color or currentTheme.Main
@@ -198,15 +179,11 @@ local function LoadMainMenu()
                 btn.TextColor3 = config[id] and Color3.new(0,0,0) or Color3.new(1,1,1)
                 -- Resets
                 if id == "speed" and not config.speed and pl.Character then pl.Character.Humanoid.WalkSpeed = 16 end
-                if id == "jump" and not config.jump and pl.Character then pl.Character.Humanoid.JumpPower = 50 
-end
+                if id == "jump" and not config.jump and pl.Character then pl.Character.Humanoid.JumpPower = 50 end
                 if id == "hitbox" and not config.hitbox then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1); p.Character.HumanoidRootPart.Transparency = 1 end end end
                 if id == "fly" and not config.fly and pl.Character and pl.Character.HumanoidRootPart:FindFirstChild("DeityFly") then pl.Character.HumanoidRootPart.DeityFly:Destroy() end
                 if id == "esp" and not config.esp then for _, p in pairs(Players:GetPlayers()) do if p.Character and p.Character:FindFirstChild("DeityESP") then p.Character.DeityESP:Destroy() end end end
-                if id == "god" and not config.god and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then 
-                    pl.Character.HumanoidRootPart.Transparency = 1; pl.Character.HumanoidRootPart.CanCollide = true
-                    if pl.Character:FindFirstChild("DeityForceField") then pl.Character.DeityForceField:Destroy() end
-                end
+                if id == "god" and not config.god and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then pl.Character.HumanoidRootPart.Transparency = 1; pl.Character.HumanoidRootPart.CanCollide = true; if pl.Character:FindFirstChild("DeityForceField") then pl.Character.DeityForceField:Destroy() end end
                 if id == "ring" and not config.ring and pl.Character:FindFirstChild("DeityRing") then pl.Character.DeityRing:Destroy() end
             end
         end)
@@ -215,14 +192,14 @@ end
 
     createBtn("⚙️ CÀI SPEED", "speed_set"); createBtn("⚙️ CÀI JUMP", "jump_set"); createBtn("⚙️ CÀI HITBOX", "hitbox_set")
     createBtn("⚡ SPEED ON/OFF", "speed"); createBtn("🦘 JUMP ON/OFF", "jump"); createBtn("🎯 HITBOX ON/OFF", "hitbox")
-    createBtn("⚙️ CÀI SPAM", "spam_set"); createBtn("⚙️ CÀI SPASM", "spasm_set"); createBtn("⚙️ CÀI FLY", "fly_set")
-    createBtn("💬 SPAM ON/OFF", "spam"); createBtn("⚡ SPASM ON/OFF", "spasm"); createBtn("✈️ FLY ON/OFF", "fly")
-    createBtn("👁️ VIEW PLAYER", "view_list"); createBtn("✈️ TP LIST", "tp_list"); createBtn("💃 NHẢY (DANCE)", "dance")
-    createBtn("🛡️ GOD MODE V2", "god"); createBtn("🚫 CHỐNG NGÃ", "antifall"); createBtn("☠️ KILL ALL V7", "kill")
-    createBtn("🪐 SUPER RING", "ring_set"); createBtn("👻 NOCLIP", "noclip"); createBtn("👁️ ESP", "esp")
-    createBtn("🧲 MAGNET", "magnet"); createBtn("🖱️ CLICK TP (CTRL)", "clicktp")
+    createBtn("⚙️ CÀI SPASM", "spasm_set"); createBtn("⚙️ CÀI FLY", "fly_set"); createBtn("✈️ FLY ON/OFF", "fly")
+    createBtn("⚡ SPASM ON/OFF", "spasm"); createBtn("💃 NHẢY (DANCE)", "dance"); createBtn("🛡️ GOD MODE V2", "god")
+    createBtn("🚫 CHỐNG NGÃ", "antifall"); createBtn("☠️ KILL ALL V8", "kill"); createBtn("🪐 SUPER RING", "ring_set")
+    createBtn("👻 NOCLIP", "noclip"); createBtn("👁️ ESP", "esp"); createBtn("🧲 MAGNET", "magnet")
+    createBtn("🖱️ CLICK TP (CTRL)", "clicktp"); createBtn("🛠️ LẤY ITEM (TP)", "item_grab"); createBtn("📉 GIẢM LAG (FPS)", "fps_boost")
+    createBtn("🛡️ ANTI-BAN (SAFE)", "antiban")
 
-    -- PHYSICS LOOP (GOD V2 & RING)
+    -- PHYSICS LOOP
     RunService.Heartbeat:Connect(function()
         local char = pl.Character; if not char then return end
         local root = char:FindFirstChild("HumanoidRootPart"); local hum = char:FindFirstChild("Humanoid")
@@ -235,54 +212,61 @@ end
 
         -- GOD MODE V2
         if config.god and hum and root then 
-            hum.Health = hum.MaxHealth
-            root.Transparency = 1; root.CanCollide = false
+            hum.Health = hum.MaxHealth; root.Transparency = 1; root.CanCollide = false
             if not char:FindFirstChild("DeityForceField") then local ff = Instance.new("ForceField", char); ff.Name="DeityForceField"; ff.Visible=false end
             for _,v in pairs(char:GetDescendants()) do if v:IsA("TouchTransmitter") then v:Destroy() end end
         end
 
-        -- SUPER RING SHAPE LOGIC
+        -- KILL ALL V8 (DOOMSDAY) - MAX POWER & AUTO TOOL
+        if config.kill and root then
+            -- Auto Equip Tool
+            for _, t in pairs(pl.Backpack:GetChildren()) do if t:IsA("Tool") then t.Parent = char end end
+            local tool = char:FindFirstChildOfClass("Tool"); if tool then tool:Activate() end
+            
+            -- Max Fling Force
+            root.AssemblyAngularVelocity = Vector3.new(math.huge, math.huge, math.huge)
+            root.AssemblyLinearVelocity = Vector3.new(math.huge, math.huge, math.huge)
+            
+            -- Find nearest valid target
+            local target = nil; local dist = math.huge
+            for _, t in pairs(Players:GetPlayers()) do
+                if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") and t.Character:FindFirstChild("Humanoid") and t.Character.Humanoid.Health > 0 then
+                    local d = (root.Position - t.Character.HumanoidRootPart.Position).Magnitude
+                    if d < dist then dist = d; target = t end
+                end
+            end
+            
+            if target then
+                -- Teleport Inside + Chaos Rotation
+                root.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.random(-10,10), math.random(-10,10), math.random(-10,10))
+            end
+        end
+
+        -- RING LOGIC
         if config.ring and root then
             if not char:FindFirstChild("DeityRing") then
                 local f = Instance.new("Folder", char); f.Name="DeityRing"
                 for i=1,6 do 
                     local p=Instance.new("Part",f); p.Anchored=true; p.CanCollide=false; p.Material=Enum.Material.Neon; p.BrickColor=BrickColor.new("Really red") 
-                    
-                    if ringShape == "Ball" then
-                        p.Shape = Enum.PartType.Ball; p.Size = Vector3.new(2,2,2)
-                    elseif ringShape == "Crystal" then
-                        p.Shape = Enum.PartType.Block; p.Size = Vector3.new(1.5, 3, 1.5)
-                    elseif ringShape == "Lightning" then
-                        p.Shape = Enum.PartType.Block; p.Size = Vector3.new(0.3, 4, 0.3) -- Thin bolt
-                    end
+                    if ringShape=="Ball" then p.Shape=Enum.PartType.Ball; p.Size=Vector3.new(2,2,2)
+                    elseif ringShape=="Crystal" then p.Shape=Enum.PartType.Block; p.Size=Vector3.new(1.5,3,1.5)
+                    elseif ringShape=="Lightning" then p.Shape=Enum.PartType.Block; p.Size=Vector3.new(0.3,4,0.3) end
                 end
             end
-            
             local parts = char.DeityRing:GetChildren()
             for i, p in pairs(parts) do
                 local angle = (tick() * 4) + (i * (360 / #parts))
                 local x = math.cos(math.rad(angle)) * 8
                 local z = math.sin(math.rad(angle)) * 8
-                
-                -- Position & Rotation Logic
                 local newCF = root.CFrame * CFrame.new(x, 0, z)
-                if ringShape == "Crystal" then
-                     -- Diamond Spin
-                    newCF = newCF * CFrame.Angles(tick()*2, tick()*2, tick()*2)
-                elseif ringShape == "Lightning" then
-                    -- Random flickering rotation for lightning effect
-                    newCF = newCF * CFrame.Angles(math.random(-1,1), math.random(-1,1), math.random(-1,1))
-                end
-                
-                p.CFrame = newCF
-                p.Color = isRainbow and mStroke.Color or currentTheme.Main
+                if ringShape=="Crystal" then newCF = newCF * CFrame.Angles(tick()*2, tick()*2, tick()*2)
+                elseif ringShape=="Lightning" then newCF = newCF * CFrame.Angles(math.random(-1,1), math.random(-1,1), math.random(-1,1)) end
+                p.CFrame = newCF; p.Color = isRainbow and mStroke.Color or currentTheme.Main
             end
         elseif char:FindFirstChild("DeityRing") then char.DeityRing:Destroy() end
 
         -- ANTI-FALL
-        if config.antifall and root then
-            if root.Position.Y < -50 then root.AssemblyLinearVelocity = Vector3.zero; root.CFrame = CFrame.new(root.Position.X, 100, root.Position.Z) end
-        end
+        if config.antifall and root then if root.Position.Y < -50 then root.AssemblyLinearVelocity = Vector3.zero; root.CFrame = CFrame.new(root.Position.X, 100, root.Position.Z) end end
 
         if config.fly and root and hum then
             local bv = root:FindFirstChild("DeityFly") or Instance.new("BodyVelocity", root); bv.Name = "DeityFly"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
@@ -296,16 +280,6 @@ end
         elseif root and root:FindFirstChild("DeityFly") then root.DeityFly:Destroy() end
 
         if config.hitbox then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then local hrp = p.Character.HumanoidRootPart; hrp.Size = Vector3.new(customHitbox, customHitbox, customHitbox); hrp.Transparency = 0.5; hrp.BrickColor = BrickColor.new("Really red"); hrp.Material = "Neon"; hrp.CanCollide = false end end end
-
-        if config.kill and root then
-            root.AssemblyAngularVelocity = Vector3.new(9e9, 9e9, 9e9)
-            for _, t in pairs(Players:GetPlayers()) do
-                if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
-                    root.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.random(),math.random(),math.random())
-                    root.AssemblyLinearVelocity = Vector3.new(9e9, 9e9, 9e9)
-                end
-            end
-        end
         if config.magnet and root then for _, v in pairs(Workspace:GetDescendants()) do if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(char) and (root.Position - v.Position).Magnitude < 150 then v.CanCollide = false; v.CFrame = root.CFrame * CFrame.new(0, 0, -3); v.AssemblyLinearVelocity = Vector3.zero end end end
     end)
     task.spawn(function() while true do if config.spam then pcall(function() ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(spamContent, "All") end); pcall(function() TextChatService.TextChannels.RBXGeneral:SendAsync(spamContent) end) end; task.wait(2.5) end end)
