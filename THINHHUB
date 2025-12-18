@@ -50,11 +50,11 @@ local isRainbow = false
 
 -- 2. XÓA GUI CŨ
 for _, v in pairs(pl.PlayerGui:GetChildren()) do
-    if v.Name == "ThinhDeity_V93" then v:Destroy() end
+    if v.Name == "ThinhDeity_V94" then v:Destroy() end
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "ThinhDeity_V93"
+gui.Name = "ThinhDeity_V94"
 gui.Parent = pl.PlayerGui
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
@@ -65,7 +65,7 @@ gui.DisplayOrder = 9999
 -- ==========================================
 local keyFrame = Instance.new("Frame", gui); keyFrame.Size=UDim2.new(0,400,0,240); keyFrame.Position=UDim2.new(0.5,0,0.5,0); keyFrame.AnchorPoint=Vector2.new(0.5,0.5); keyFrame.BackgroundColor3=Color3.fromRGB(15,15,20); keyFrame.Visible=true; keyFrame.Active=true; keyFrame.Draggable=true
 Instance.new("UICorner", keyFrame).CornerRadius=UDim.new(0,10); local kStr=Instance.new("UIStroke",keyFrame); kStr.Color=Color3.fromRGB(255,255,0); kStr.Thickness=2
-local kTitle = Instance.new("TextLabel", keyFrame); kTitle.Text="THINH DEITY V93"; kTitle.Size=UDim2.new(1,0,0,40); kTitle.TextColor3=Color3.fromRGB(255,255,0); kTitle.Font=Enum.Font.GothamBold; kTitle.TextSize=18; kTitle.BackgroundTransparency=1
+local kTitle = Instance.new("TextLabel", keyFrame); kTitle.Text="THINH DEITY V94"; kTitle.Size=UDim2.new(1,0,0,40); kTitle.TextColor3=Color3.fromRGB(255,255,0); kTitle.Font=Enum.Font.GothamBold; kTitle.TextSize=18; kTitle.BackgroundTransparency=1
 local kInput = Instance.new("TextBox", keyFrame); kInput.Size=UDim2.new(0.7,0,0.18,0); kInput.Position=UDim2.new(0.1,0,0.25,0); kInput.BackgroundColor3=Color3.fromRGB(40,40,50); kInput.TextColor3=Color3.new(1,1,1); kInput.Text=""; kInput.PlaceholderText="Nhập Key..."; Instance.new("UICorner", kInput)
 
 local actualKey, isTyping, isHidden = "", false, true
@@ -89,16 +89,17 @@ local kBtn = Instance.new("TextButton", keyFrame); kBtn.Size=UDim2.new(0.4,0,0.2
 -- ==========================================
 local function LoadMainMenu()
     keyFrame:Destroy()
-    StarterGui:SetCore("SendNotification", {Title = "V93 RING", Text = "Đã thêm Vòng Tròn Siêu Cấp!", Duration = 5})
+    StarterGui:SetCore("SendNotification", {Title = "V94 SELECTOR", Text = "Chọn hình dáng Ring!", Duration = 5})
 
     local config = { speed=false, jump=false, noclip=false, magnet=false, kill=false, esp=false, god=false, invis=false, spam=false, killaura=false, spasm=false, hitbox=false, fly=false, clicktp=false, antifall=false, ring=false }
     local customSpeed, customJump, customHitbox, customFly, customSpasm, spamContent = 75, 50, 10, 50, 20, "THINH DEITY ON TOP"
+    local ringShape = "Ball" -- Default
 
     -- UI CHÍNH
     local menu = Instance.new("Frame", gui); menu.Size = UDim2.new(0, 480, 0, 360); menu.Position = UDim2.new(0.5, -240, 0.5, -180); menu.BackgroundColor3 = currentTheme.Bg
     menu.Visible = true; menu.Active = true; menu.Draggable = true; menu.ZIndex = 1; Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 10)
     local mStroke = Instance.new("UIStroke", menu); mStroke.Color = currentTheme.Main; mStroke.Thickness = 2
-    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V93"; title.Size = UDim2.new(0.7,0,0,30); title.Position = UDim2.new(0,15,0,5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
+    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V94"; title.Size = UDim2.new(0.7,0,0,30); title.Position = UDim2.new(0,15,0,5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
     
     local infoLabel = Instance.new("TextLabel", menu); infoLabel.Size = UDim2.new(0.9,0,0,30); infoLabel.Position = UDim2.new(0.03,0,0.89,0); infoLabel.BackgroundTransparency=1; infoLabel.TextColor3=Color3.fromRGB(180,180,180); infoLabel.Font=Enum.Font.Code; infoLabel.TextSize=10; infoLabel.TextXAlignment=Enum.TextXAlignment.Left
     RunService.RenderStepped:Connect(function() local fps=math.floor(1/RunService.RenderStepped:Wait()); infoLabel.Text=string.format("USER: %s | GAME: %s | FPS: %d", pl.Name, gameName, fps) end)
@@ -121,6 +122,24 @@ local function LoadMainMenu()
     local hbFrame = CreatePopup("CÀI HITBOX", customHitbox, function(v) customHitbox=tonumber(v) or 10; config.hitbox=true end)
     local flyFrame = CreatePopup("CÀI FLY", customFly, function(v) customFly=tonumber(v) or 50; config.fly=true end)
     local spasmFrame = CreatePopup("CÀI SPASM", customSpasm, function(v) customSpasm=tonumber(v) or 20; config.spasm=true end)
+
+    -- RING SHAPE SELECTOR (MỚI)
+    local ringSelFrame = Instance.new("Frame", gui); ringSelFrame.Visible=false; ringSelFrame.Size=UDim2.new(0,300,0,200); ringSelFrame.Position=UDim2.new(0.5,0,0.4,0); ringSelFrame.AnchorPoint=Vector2.new(0.5,0.5); ringSelFrame.BackgroundColor3=Color3.fromRGB(20,20,30); ringSelFrame.ZIndex=200; Instance.new("UICorner", ringSelFrame); Instance.new("UIStroke", ringSelFrame).Color=Color3.fromRGB(0,255,255)
+    local rsTitle = Instance.new("TextLabel", ringSelFrame); rsTitle.Text="CHỌN HÌNH DÁNG RING"; rsTitle.Size=UDim2.new(1,0,0,40); rsTitle.TextColor3=Color3.new(1,1,1); rsTitle.BackgroundTransparency=1; rsTitle.ZIndex=201
+    
+    local function makeRingBtn(txt, shape, pos)
+        local b = Instance.new("TextButton", ringSelFrame); b.Size=UDim2.new(0.8,0,0.2,0); b.Position=UDim2.new(0.1,0,pos,0); b.Text=txt; b.BackgroundColor3=Color3.fromRGB(40,40,50); b.TextColor3=Color3.new(1,1,1); b.ZIndex=201; Instance.new("UICorner", b)
+        b.MouseButton1Click:Connect(function() 
+            ringShape = shape
+            config.ring = true
+            ringSelFrame.Visible = false 
+            if pl.Character and pl.Character:FindFirstChild("DeityRing") then pl.Character.DeityRing:Destroy() end -- Reset Ring
+        end)
+    end
+    makeRingBtn("🔮 PHA LÊ (CRYSTAL)", "Crystal", 0.25)
+    makeRingBtn("⚫ HÌNH TRÒN (BALL)", "Ball", 0.5)
+    makeRingBtn("⚡ SẤM CHỚP (LIGHTNING)", "Lightning", 0.75)
+
 
     local spamFrame = Instance.new("Frame", gui); spamFrame.Visible=false; spamFrame.Size=UDim2.new(0,300,0,180); spamFrame.Position=UDim2.new(0.5,0,0.4,0); spamFrame.AnchorPoint=Vector2.new(0.5,0.5); spamFrame.BackgroundColor3=Color3.fromRGB(25,25,30); spamFrame.ZIndex=200; Instance.new("UICorner", spamFrame); Instance.new("UIStroke", spamFrame).Color=Color3.new(1,1,0)
     local smInput = Instance.new("TextBox", spamFrame); smInput.Size=UDim2.new(0.9,0,0.3,0); smInput.Position=UDim2.new(0.05,0,0.15,0); smInput.Text=""; smInput.PlaceholderText="Nhập tin..."; smInput.ZIndex=201; Instance.new("UICorner", smInput)
@@ -171,6 +190,7 @@ local function LoadMainMenu()
             elseif id == "spasm_set" then spasmFrame.Visible = not spasmFrame.Visible
             elseif id == "tp_list" then tpFrame.Visible = not tpFrame.Visible; if tpFrame.Visible then UpdateTPList() end
             elseif id == "view_list" then viewFrame.Visible = not viewFrame.Visible; if viewFrame.Visible then UpdateViewList() end
+            elseif id == "ring_set" then ringSelFrame.Visible = not ringSelFrame.Visible -- Toggle Ring Menu
             else 
                 config[id] = not config[id]
                 local activeColor = isRainbow and mStroke.Color or currentTheme.Main
@@ -178,7 +198,8 @@ local function LoadMainMenu()
                 btn.TextColor3 = config[id] and Color3.new(0,0,0) or Color3.new(1,1,1)
                 -- Resets
                 if id == "speed" and not config.speed and pl.Character then pl.Character.Humanoid.WalkSpeed = 16 end
-                if id == "jump" and not config.jump and pl.Character then pl.Character.Humanoid.JumpPower = 50 end
+                if id == "jump" and not config.jump and pl.Character then pl.Character.Humanoid.JumpPower = 50 
+end
                 if id == "hitbox" and not config.hitbox then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1); p.Character.HumanoidRootPart.Transparency = 1 end end end
                 if id == "fly" and not config.fly and pl.Character and pl.Character.HumanoidRootPart:FindFirstChild("DeityFly") then pl.Character.HumanoidRootPart.DeityFly:Destroy() end
                 if id == "esp" and not config.esp then for _, p in pairs(Players:GetPlayers()) do if p.Character and p.Character:FindFirstChild("DeityESP") then p.Character.DeityESP:Destroy() end end end
@@ -198,7 +219,7 @@ local function LoadMainMenu()
     createBtn("💬 SPAM ON/OFF", "spam"); createBtn("⚡ SPASM ON/OFF", "spasm"); createBtn("✈️ FLY ON/OFF", "fly")
     createBtn("👁️ VIEW PLAYER", "view_list"); createBtn("✈️ TP LIST", "tp_list"); createBtn("💃 NHẢY (DANCE)", "dance")
     createBtn("🛡️ GOD MODE V2", "god"); createBtn("🚫 CHỐNG NGÃ", "antifall"); createBtn("☠️ KILL ALL V7", "kill")
-    createBtn("🪐 SUPER RING", "ring"); createBtn("👻 NOCLIP", "noclip"); createBtn("👁️ ESP", "esp")
+    createBtn("🪐 SUPER RING", "ring_set"); createBtn("👻 NOCLIP", "noclip"); createBtn("👁️ ESP", "esp")
     createBtn("🧲 MAGNET", "magnet"); createBtn("🖱️ CLICK TP (CTRL)", "clicktp")
 
     -- PHYSICS LOOP (GOD V2 & RING)
@@ -220,21 +241,41 @@ local function LoadMainMenu()
             for _,v in pairs(char:GetDescendants()) do if v:IsA("TouchTransmitter") then v:Destroy() end end
         end
 
-        -- SUPER RING
+        -- SUPER RING SHAPE LOGIC
         if config.ring and root then
             if not char:FindFirstChild("DeityRing") then
                 local f = Instance.new("Folder", char); f.Name="DeityRing"
                 for i=1,6 do 
-                    local p=Instance.new("Part",f); p.Size=Vector3.new(1.5,1.5,1.5); p.Anchored=true; p.CanCollide=false; p.Material=Enum.Material.Neon; p.BrickColor=BrickColor.new("Really red") 
+                    local p=Instance.new("Part",f); p.Anchored=true; p.CanCollide=false; p.Material=Enum.Material.Neon; p.BrickColor=BrickColor.new("Really red") 
+                    
+                    if ringShape == "Ball" then
+                        p.Shape = Enum.PartType.Ball; p.Size = Vector3.new(2,2,2)
+                    elseif ringShape == "Crystal" then
+                        p.Shape = Enum.PartType.Block; p.Size = Vector3.new(1.5, 3, 1.5)
+                    elseif ringShape == "Lightning" then
+                        p.Shape = Enum.PartType.Block; p.Size = Vector3.new(0.3, 4, 0.3) -- Thin bolt
+                    end
                 end
             end
+            
             local parts = char.DeityRing:GetChildren()
             for i, p in pairs(parts) do
                 local angle = (tick() * 4) + (i * (360 / #parts))
                 local x = math.cos(math.rad(angle)) * 8
                 local z = math.sin(math.rad(angle)) * 8
-                p.CFrame = root.CFrame * CFrame.new(x, 0, z) * CFrame.Angles(tick()*5, tick()*5, tick()*5)
-                p.Color = isRainbow and mStroke.Color or currentTheme.Main -- Sync Color
+                
+                -- Position & Rotation Logic
+                local newCF = root.CFrame * CFrame.new(x, 0, z)
+                if ringShape == "Crystal" then
+                     -- Diamond Spin
+                    newCF = newCF * CFrame.Angles(tick()*2, tick()*2, tick()*2)
+                elseif ringShape == "Lightning" then
+                    -- Random flickering rotation for lightning effect
+                    newCF = newCF * CFrame.Angles(math.random(-1,1), math.random(-1,1), math.random(-1,1))
+                end
+                
+                p.CFrame = newCF
+                p.Color = isRainbow and mStroke.Color or currentTheme.Main
             end
         elseif char:FindFirstChild("DeityRing") then char.DeityRing:Destroy() end
 
