@@ -36,26 +36,17 @@ end
 
 -- THEME SYSTEM
 local THEMES = {
-    CYAN = {Name="Xanh Neon", Main=Color3.fromRGB(0,255,230), Bg=Color3.fromRGB(15,20,25)},
-    RED = {Name="Đỏ Huyết", Main=Color3.fromRGB(255,50,50), Bg=Color3.fromRGB(25,10,10)},
-    GREEN = {Name="Xanh Lá", Main=Color3.fromRGB(0,255,0), Bg=Color3.fromRGB(10,25,10)},
-    PURPLE = {Name="Tím Mộng", Main=Color3.fromRGB(170,0,255), Bg=Color3.fromRGB(25,10,35)},
-    ORANGE = {Name="Cam Cháy", Main=Color3.fromRGB(255,120,0), Bg=Color3.fromRGB(30,15,5)},
-    PINK = {Name="Hồng Phấn", Main=Color3.fromRGB(255,100,180), Bg=Color3.fromRGB(30,10,20)},
-    BLUE = {Name="Xanh Biển", Main=Color3.fromRGB(0,120,255), Bg=Color3.fromRGB(10,15,30)},
-    WHITE = {Name="Bạch Kim", Main=Color3.fromRGB(255,255,255), Bg=Color3.fromRGB(30,30,30)},
-    YELLOW = {Name="Vàng Chanh", Main=Color3.fromRGB(255,255,0), Bg=Color3.fromRGB(25,25,5)}
+    CYAN = {Name="Xanh Neon", Main=Color3.fromRGB(0,255,230), Bg=Color3.fromRGB(15,20,25)}
 }
 local currentTheme = THEMES.CYAN
-local isRainbow = false
 
 -- 2. XÓA GUI CŨ
 for _, v in pairs(pl.PlayerGui:GetChildren()) do
-    if v.Name == "ThinhDeity_V97" then v:Destroy() end
+    if v.Name == "ThinhDeity_V99" then v:Destroy() end
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "ThinhDeity_V97"
+gui.Name = "ThinhDeity_V99"
 gui.Parent = pl.PlayerGui
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
@@ -66,7 +57,7 @@ gui.DisplayOrder = 9999
 -- ==========================================
 local keyFrame = Instance.new("Frame", gui); keyFrame.Size=UDim2.new(0,400,0,240); keyFrame.Position=UDim2.new(0.5,0,0.5,0); keyFrame.AnchorPoint=Vector2.new(0.5,0.5); keyFrame.BackgroundColor3=Color3.fromRGB(15,15,20); keyFrame.Visible=true; keyFrame.Active=true; keyFrame.Draggable=true
 Instance.new("UICorner", keyFrame).CornerRadius=UDim.new(0,10); local kStr=Instance.new("UIStroke",keyFrame); kStr.Color=Color3.fromRGB(255,255,0); kStr.Thickness=2
-local kTitle = Instance.new("TextLabel", keyFrame); kTitle.Text="THINH DEITY V97"; kTitle.Size=UDim2.new(1,0,0,40); kTitle.TextColor3=Color3.fromRGB(255,255,0); kTitle.Font=Enum.Font.GothamBold; kTitle.TextSize=18; kTitle.BackgroundTransparency=1
+local kTitle = Instance.new("TextLabel", keyFrame); kTitle.Text="THINH DEITY V99"; kTitle.Size=UDim2.new(1,0,0,40); kTitle.TextColor3=Color3.fromRGB(255,255,0); kTitle.Font=Enum.Font.GothamBold; kTitle.TextSize=18; kTitle.BackgroundTransparency=1
 local kInput = Instance.new("TextBox", keyFrame); kInput.Size=UDim2.new(0.7,0,0.18,0); kInput.Position=UDim2.new(0.1,0,0.25,0); kInput.BackgroundColor3=Color3.fromRGB(40,40,50); kInput.TextColor3=Color3.new(1,1,1); kInput.Text=""; kInput.PlaceholderText="Nhập Key..."; Instance.new("UICorner", kInput)
 
 local actualKey, isTyping, isHidden = "", false, true
@@ -86,13 +77,13 @@ discordBtn.MouseButton1Click:Connect(function() setclipboard(DISCORD_LINK); disc
 local kBtn = Instance.new("TextButton", keyFrame); kBtn.Size=UDim2.new(0.4,0,0.2,0); kBtn.Position=UDim2.new(0.3,0,0.75,0); kBtn.Text="CHECK KEY"; kBtn.BackgroundColor3=Color3.fromRGB(0,255,0); kBtn.Font=Enum.Font.GothamBold; Instance.new("UICorner", kBtn)
 
 -- ==========================================
--- PHẦN 2: MAIN MENU & FUNCTIONS
+-- PHẦN 2: MAIN MENU
 -- ==========================================
 local function LoadMainMenu()
     keyFrame:Destroy()
-    StarterGui:SetCore("SendNotification", {Title = "V97 REACH", Text = "Đã fix lỗi đánh hụt!", Duration = 5})
+    StarterGui:SetCore("SendNotification", {Title = "V99 AUTO DODGE", Text = "Đã kích hoạt Bản Năng Vô Cực!", Duration = 5})
 
-    local config = { speed=false, jump=false, noclip=false, magnet=false, kill=false, esp=false, god=false, invis=false, spam=false, killaura=false, spasm=false, hitbox=false, fly=false, clicktp=false, antifall=false, ring=false, reach=false }
+    local config = { speed=false, jump=false, noclip=false, magnet=false, kill=false, esp=false, god=false, invis=false, spam=false, killaura=false, spasm=false, hitbox=false, fly=false, clicktp=false, antifall=false, ring=false, reach=false, nograv=false, underground=false, fakelag=false, autododge=false }
     local customSpeed, customJump, customHitbox, customFly, customSpasm, spamContent = 75, 50, 40, 50, 20, "THINH DEITY ON TOP"
     local ringShape = "Ball"
 
@@ -100,25 +91,12 @@ local function LoadMainMenu()
     local menu = Instance.new("Frame", gui); menu.Size = UDim2.new(0, 480, 0, 360); menu.Position = UDim2.new(0.5, -240, 0.5, -180); menu.BackgroundColor3 = currentTheme.Bg
     menu.Visible = true; menu.Active = true; menu.Draggable = true; menu.ZIndex = 1; Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 10)
     local mStroke = Instance.new("UIStroke", menu); mStroke.Color = currentTheme.Main; mStroke.Thickness = 2
-    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V97"; title.Size = UDim2.new(0.7,0,0,30); title.Position = UDim2.new(0,15,0,5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
+    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V99 (ULTRA INSTINCT)"; title.Size = UDim2.new(0.7,0,0,30); title.Position = UDim2.new(0,15,0,5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
     
     local infoLabel = Instance.new("TextLabel", menu); infoLabel.Size = UDim2.new(0.9,0,0,30); infoLabel.Position = UDim2.new(0.03,0,0.89,0); infoLabel.BackgroundTransparency=1; infoLabel.TextColor3=Color3.fromRGB(180,180,180); infoLabel.Font=Enum.Font.Code; infoLabel.TextSize=10; infoLabel.TextXAlignment=Enum.TextXAlignment.Left
     RunService.RenderStepped:Connect(function() local fps=math.floor(1/RunService.RenderStepped:Wait()); infoLabel.Text=string.format("USER: %s | GAME: %s | FPS: %d", pl.Name, gameName, fps) end)
 
     local settingsBtn = Instance.new("TextButton", menu); settingsBtn.Size = UDim2.new(0,80,0,30); settingsBtn.Position = UDim2.new(0.8,0,0.02,0); settingsBtn.Text = "⚙️ CÀI ĐẶT"; settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,50); settingsBtn.TextColor3 = currentTheme.Main; settingsBtn.Font = Enum.Font.GothamBold; settingsBtn.TextSize = 10; Instance.new("UICorner", settingsBtn)
-
-    -- [OPTIMIZED FUNCTIONS]
-    local function BoostFPS()
-        local t = Workspace.Terrain; t.WaterWaveSize=0; t.WaterAnimationDirection=Vector2.new(0,0); t.WaterReflectance=0; t.WaterTransparency=0
-        Lighting.GlobalShadows=false; Lighting.FogEnd=9e9
-        for _,v in pairs(game:GetDescendants()) do if v:IsA("BasePart") then v.Material=Enum.Material.SmoothPlastic; v.Reflectance=0 elseif v:IsA("Decal") or v:IsA("Texture") then v.Transparency=1 elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then v.Enabled=false end end
-        StarterGui:SetCore("SendNotification", {Title="FPS BOOST", Text="Đã tối ưu hóa!", Duration=3})
-    end
-    local function GrabItems()
-        local old = pl.Character.HumanoidRootPart.CFrame; local c = 0
-        for _,v in pairs(Workspace:GetDescendants()) do if (v:IsA("Tool") or (v:IsA("BasePart") and v.Name=="Handle")) and not v:IsDescendantOf(pl.Character) then if v:IsA("BasePart") then pl.Character.HumanoidRootPart.CFrame=v.CFrame elseif v:IsA("Tool") and v.Handle then pl.Character.HumanoidRootPart.CFrame=v.Handle.CFrame end; wait(0.05); c=c+1 end end
-        pl.Character.HumanoidRootPart.CFrame = old; StarterGui:SetCore("SendNotification", {Title="ITEM GRABBER", Text="Đã nhặt "..c.." item!", Duration=3})
-    end
 
     -- [HELPER: POPUP]
     local function CreatePopup(name, varRef, applyFunc)
@@ -148,12 +126,6 @@ local function LoadMainMenu()
     local grid = Instance.new("ScrollingFrame", menu); grid.Size = UDim2.new(0.95,0,0.75,0); grid.Position = UDim2.new(0.025,0,0.15,0); grid.BackgroundTransparency=1; grid.ScrollBarThickness=2
     local layout = Instance.new("UIGridLayout", grid); layout.CellSize = UDim2.new(0.31,0,0,40); layout.CellPadding = UDim2.new(0.02,0,0.02,0)
 
-    -- THEME ENGINE
-    local openBtn; local function UpdateColors(col, bg) menu.BackgroundColor3=bg; mStroke.Color=col; title.TextColor3=col; settingsBtn.TextColor3=col; setStroke.Color=col; if openBtn then openBtn.BackgroundColor3=col end; for _, btn in pairs(grid:GetChildren()) do if btn:IsA("TextButton") and btn.BackgroundColor3 ~= Color3.fromRGB(40,20,20) then btn.BackgroundColor3 = col end end end
-    RunService.RenderStepped:Connect(function() if isRainbow then local hue=tick()%5/5; UpdateColors(Color3.fromHSV(hue,1,1), currentTheme.Bg) end end)
-    for key, val in pairs(THEMES) do local b=Instance.new("TextButton", setScroll); b.Size=UDim2.new(1,0,0,35); b.Text=val.Name; b.BackgroundColor3=val.Main; b.TextColor3=Color3.new(0,0,0); b.ZIndex=202; Instance.new("UICorner", b); b.MouseButton1Click:Connect(function() isRainbow=false; currentTheme=THEMES[key]; UpdateColors(currentTheme.Main, currentTheme.Bg) end) end
-    local rbBtn=Instance.new("TextButton", setScroll); rbBtn.Size=UDim2.new(1,0,0,35); rbBtn.Text="RAINBOW"; rbBtn.BackgroundColor3=Color3.new(1,1,1); rbBtn.TextColor3=Color3.new(0,0,0); rbBtn.ZIndex=202; Instance.new("UICorner", rbBtn); rbBtn.MouseButton1Click:Connect(function() isRainbow=true end)
-
     -- [CLICK TP]
     local function TeleportToMouse() if mouse.Target then pl.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.p + Vector3.new(0,3,0)) end end
     mouse.Button1Down:Connect(function() if config.clicktp and UIS:IsKeyDown(Enum.KeyCode.LeftControl) then TeleportToMouse() end end)
@@ -168,103 +140,109 @@ local function LoadMainMenu()
             elseif id == "fly_set" then flyFrame.Visible = not flyFrame.Visible
             elseif id == "spasm_set" then spasmFrame.Visible = not spasmFrame.Visible
             elseif id == "ring_set" then ringSelFrame.Visible = not ringSelFrame.Visible
-            elseif id == "fps_boost" then BoostFPS()
-            elseif id == "item_grab" then GrabItems()
-            elseif id == "antiban" then for k,v in pairs(config) do config[k] = false end; pl.Character.Humanoid.WalkSpeed=16; pl.Character.Humanoid.JumpPower=50; StarterGui:SetCore("SendNotification", {Title="SAFE MODE", Text="Đã tắt toàn bộ hack!", Duration=3})
             else 
                 config[id] = not config[id]
-                local activeColor = isRainbow and mStroke.Color or currentTheme.Main
+                local activeColor = currentTheme.Main
                 btn.BackgroundColor3 = config[id] and activeColor or Color3.fromRGB(40,20,20)
                 btn.TextColor3 = config[id] and Color3.new(0,0,0) or Color3.new(1,1,1)
-                -- Resets
+                
+                if id == "underground" then
+                    if config.underground and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then pl.Character.HumanoidRootPart.CFrame = pl.Character.HumanoidRootPart.CFrame * CFrame.new(0, -20, 0)
+                    elseif not config.underground and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then pl.Character.HumanoidRootPart.CFrame = pl.Character.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0) end
+                end
+                
+                -- GOD MODE OFF LOGIC
+                if id == "god" and not config.god and pl.Character:FindFirstChild("ThinhShield") then
+                    pl.Character.ThinhShield:Destroy()
+                end
+
                 if id == "hitbox" and not config.hitbox then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1); p.Character.HumanoidRootPart.Transparency = 1 end end end
                 if id == "fly" and not config.fly and pl.Character and pl.Character.HumanoidRootPart:FindFirstChild("DeityFly") then pl.Character.HumanoidRootPart.DeityFly:Destroy() end
-                if id == "god" and not config.god and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then pl.Character.HumanoidRootPart.Transparency = 1; pl.Character.HumanoidRootPart.CanCollide = true; if pl.Character:FindFirstChild("DeityForceField") then pl.Character.DeityForceField:Destroy() end end
                 if id == "ring" and not config.ring and pl.Character:FindFirstChild("DeityRing") then pl.Character.DeityRing:Destroy() end
             end
         end)
-        if id == "speed" then RunService.RenderStepped:Connect(function() if config.speed then btn.Text = "⚡ SPEED: " .. customSpeed; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="⚡ SPEED ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
+        if id == "speed" then RunService.RenderStepped:Connect(function() if config.speed then btn.Text = "⚡ SPEED: " .. customSpeed; btn.TextColor3=Color3.new(0,0,0); btn.BackgroundColor3=currentTheme.Main else btn.Text="⚡ SPEED ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
     end
 
     createBtn("⚙️ CÀI SPEED", "speed_set"); createBtn("⚙️ CÀI JUMP", "jump_set"); createBtn("⚙️ CÀI HITBOX", "hitbox_set")
     createBtn("⚡ SPEED ON/OFF", "speed"); createBtn("🦘 JUMP ON/OFF", "jump"); createBtn("🎯 HITBOX ON/OFF", "hitbox")
     createBtn("🗡️ SUPER REACH", "reach"); createBtn("⚙️ CÀI SPASM", "spasm_set"); createBtn("⚙️ CÀI FLY", "fly_set")
     createBtn("✈️ FLY ON/OFF", "fly"); createBtn("⚡ SPASM ON/OFF", "spasm"); createBtn("💃 NHẢY (DANCE)", "dance")
-    createBtn("🛡️ GOD MODE V2", "god"); createBtn("🚫 CHỐNG NGÃ", "antifall"); createBtn("☠️ KILL ALL V8", "kill")
+    createBtn("🛡️ GOD FORCEFIELD", "god"); createBtn("🚫 CHỐNG NGÃ", "antifall"); createBtn("☠️ KILL ALL V8", "kill")
     createBtn("🪐 SUPER RING", "ring_set"); createBtn("👻 NOCLIP", "noclip"); createBtn("👁️ ESP", "esp")
     createBtn("🧲 MAGNET", "magnet"); createBtn("🖱️ CLICK TP (CTRL)", "clicktp"); createBtn("🛠️ LẤY ITEM (TP)", "item_grab")
-    createBtn("📉 GIẢM LAG (FPS)", "fps_boost"); createBtn("🛡️ ANTI-BAN (SAFE)", "antiban")
+    createBtn("🌑 KO TRỌNG LỰC", "nograv"); createBtn("🕳️ ĐỘN THỔ", "underground"); createBtn("⚡ FAKE LAG", "fakelag")
+    -- NÚT MỚI: AUTO DODGE
+    createBtn("⚡ AUTO DODGE", "autododge")
+
+    -- [AUTO DODGE LOGIC]
+    task.spawn(function()
+        while true do
+            if config.autododge and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
+                for _, enemy in pairs(Players:GetPlayers()) do
+                    if enemy ~= pl and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
+                        local myRoot = pl.Character.HumanoidRootPart
+                        local enemyRoot = enemy.Character.HumanoidRootPart
+                        local dist = (myRoot.Position - enemyRoot.Position).Magnitude
+                        
+                        if dist < 15 then -- Nếu kẻ địch lại gần 15 studs
+                            -- Tự động lùi lại 5 studs hoặc nhảy sang bên
+                            local dodgeVector = (myRoot.Position - enemyRoot.Position).Unit
+                            myRoot.CFrame = myRoot.CFrame + (dodgeVector * 5)
+                            -- Hiệu ứng giật nhẹ
+                            StarterGui:SetCore("SendNotification", {Title = "AUTO DODGE", Text = "Đã né: " .. enemy.Name, Duration = 1})
+                            task.wait(0.5) -- Cooldown né để không bị spam
+                        end
+                    end
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+
+    -- [FAKE LAG]
+    task.spawn(function()
+        while true do
+            if config.fakelag and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
+                pl.Character.Humanoid.WalkSpeed = 300; pl.Character.HumanoidRootPart.Anchored = true; task.wait(0.1); pl.Character.HumanoidRootPart.Anchored = false; task.wait(0.1)
+            else task.wait(0.2) end
+        end
+    end)
 
     -- PHYSICS LOOP
     RunService.Heartbeat:Connect(function()
         local char = pl.Character; if not char then return end
         local root = char:FindFirstChild("HumanoidRootPart"); local hum = char:FindFirstChild("Humanoid")
         
-        if config.speed and hum then hum.WalkSpeed = customSpeed end
+        if config.speed and hum and not config.fakelag then hum.WalkSpeed = customSpeed end
         if config.jump and hum then hum.UseJumpPower = true; hum.JumpPower = customJump end
         if config.noclip or config.kill then for _,v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
         if config.spasm and root then root.CFrame = root.CFrame * CFrame.Angles(math.rad(math.random(-customSpasm,customSpasm)), math.rad(math.random(-customSpasm,customSpasm)), math.rad(math.random(-customSpasm,customSpasm))) end
         if config.dance and root and hum then root.RotVelocity = Vector3.new(0, 50, 0); if hum.FloorMaterial ~= Enum.Material.Air then hum.Jump = true end end
-        if config.god and hum and root then hum.Health = hum.MaxHealth; root.Transparency = 1; root.CanCollide = false; if not char:FindFirstChild("DeityForceField") then local ff = Instance.new("ForceField", char); ff.Name="DeityForceField"; ff.Visible=false end; for _,v in pairs(char:GetDescendants()) do if v:IsA("TouchTransmitter") then v:Destroy() end end end
-
-        -- HITBOX EXPANDER (MODIFIED SIZE 60)
-        if config.hitbox then 
-            for _, p in pairs(Players:GetPlayers()) do 
-                if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then 
-                    local hrp = p.Character.HumanoidRootPart
-                    hrp.Size = Vector3.new(customHitbox, customHitbox, customHitbox)
-                    hrp.Transparency = 0.8 -- See through
-                    hrp.BrickColor = BrickColor.new("Really red")
-                    hrp.Material = "ForceField"
-                    hrp.CanCollide = false 
-                end 
-            end 
-        end
-
-        -- SUPER REACH (BRING HITBOX)
-        if config.reach and root then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetRoot = p.Character.HumanoidRootPart
-                    if (targetRoot.Position - root.Position).Magnitude < 100 then -- Within 100 studs
-                        -- CLIENT SIDE TP of Enemy Hitbox to Player
-                        targetRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3) -- 3 studs in front
-                        targetRoot.AssemblyLinearVelocity = Vector3.zero
-                    end
-                end
+        
+        -- GOD MODE FORCEFIELD (FIXED)
+        if config.god and hum then 
+            hum.Health = hum.MaxHealth
+            if not char:FindFirstChild("ThinhShield") then
+                local ff = Instance.new("ForceField", char)
+                ff.Name = "ThinhShield"
+                ff.Visible = true 
             end
         end
 
-        -- RING LOGIC
+        if config.hitbox then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then local hrp = p.Character.HumanoidRootPart; hrp.Size = Vector3.new(customHitbox, customHitbox, customHitbox); hrp.Transparency = 0.8; hrp.BrickColor = BrickColor.new("Really red"); hrp.Material = "ForceField"; hrp.CanCollide = false end end end
+        if config.reach and root then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then local targetRoot = p.Character.HumanoidRootPart; if (targetRoot.Position - root.Position).Magnitude < 100 then targetRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3); targetRoot.AssemblyLinearVelocity = Vector3.zero end end end end
+        if config.nograv then Workspace.Gravity = 0 else Workspace.Gravity = 196.2 end
+
         if config.ring and root then
             if not char:FindFirstChild("DeityRing") then local f = Instance.new("Folder", char); f.Name="DeityRing"; for i=1,6 do local p=Instance.new("Part",f); p.Anchored=true; p.CanCollide=false; p.Material=Enum.Material.Neon; p.BrickColor=BrickColor.new("Really red"); if ringShape=="Ball" then p.Shape=Enum.PartType.Ball; p.Size=Vector3.new(2,2,2) elseif ringShape=="Crystal" then p.Shape=Enum.PartType.Block; p.Size=Vector3.new(1.5,3,1.5) elseif ringShape=="Lightning" then p.Shape=Enum.PartType.Block; p.Size=Vector3.new(0.3,4,0.3) end end end
             local parts = char.DeityRing:GetChildren()
-            for i, p in pairs(parts) do
-                local angle = (tick() * 4) + (i * (360 / #parts))
-                local x = math.cos(math.rad(angle)) * 8
-                local z = math.sin(math.rad(angle)) * 8
-                local newCF = root.CFrame * CFrame.new(x, 0, z)
-                if ringShape=="Crystal" then newCF = newCF * CFrame.Angles(tick()*2, tick()*2, tick()*2) elseif ringShape=="Lightning" then newCF = newCF * CFrame.Angles(math.random(-1,1), math.random(-1,1), math.random(-1,1)) end
-                p.CFrame = newCF; p.Color = isRainbow and mStroke.Color or currentTheme.Main
-            end
+            for i, p in pairs(parts) do local angle = (tick() * 4) + (i * (360 / #parts)); local x = math.cos(math.rad(angle)) * 8; local z = math.sin(math.rad(angle)) * 8; local newCF = root.CFrame * CFrame.new(x, 0, z); if ringShape=="Crystal" then newCF = newCF * CFrame.Angles(tick()*2, tick()*2, tick()*2) elseif ringShape=="Lightning" then newCF = newCF * CFrame.Angles(math.random(-1,1), math.random(-1,1), math.random(-1,1)) end; p.CFrame = newCF; p.Color = currentTheme.Main end
         elseif char:FindFirstChild("DeityRing") then char.DeityRing:Destroy() end
 
         if config.antifall and root then if root.Position.Y < -50 then root.AssemblyLinearVelocity = Vector3.zero; root.CFrame = CFrame.new(root.Position.X, 100, root.Position.Z) end end
-
-        if config.fly and root and hum then
-            local bv = root:FindFirstChild("DeityFly") or Instance.new("BodyVelocity", root); bv.Name = "DeityFly"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            local move, cam = Vector3.zero, Workspace.CurrentCamera
-            if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector end
-            if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector end
-            if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector end
-            if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector end
-            if hum.MoveDirection.Magnitude > 0 then move = hum.MoveDirection; move = Vector3.new(move.X, cam.CFrame.LookVector.Y, move.Z) end
-            bv.Velocity = move * customFly
-        elseif root and root:FindFirstChild("DeityFly") then root.DeityFly:Destroy() end
-
-        if config.kill and root then
-            root.AssemblyAngularVelocity = Vector3.new(9e9, 9e9, 9e9); for _, t in pairs(Players:GetPlayers()) do if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then root.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.random(),math.random(),math.random()); root.AssemblyLinearVelocity = Vector3.new(9e9, 9e9, 9e9) end end
-        end
+        if config.fly and root and hum then local bv = root:FindFirstChild("DeityFly") or Instance.new("BodyVelocity", root); bv.Name = "DeityFly"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); local move, cam = Vector3.zero, Workspace.CurrentCamera; if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector end; if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector end; if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector end; if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector end; if hum.MoveDirection.Magnitude > 0 then move = hum.MoveDirection; move = Vector3.new(move.X, cam.CFrame.LookVector.Y, move.Z) end; bv.Velocity = move * customFly elseif root and root:FindFirstChild("DeityFly") then root.DeityFly:Destroy() end
+        if config.kill and root then root.AssemblyAngularVelocity = Vector3.new(9e9, 9e9, 9e9); for _, t in pairs(Players:GetPlayers()) do if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then root.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.random(),math.random(),math.random()); root.AssemblyLinearVelocity = Vector3.new(9e9, 9e9, 9e9) end end end
         if config.magnet and root then for _, v in pairs(Workspace:GetDescendants()) do if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(char) and (root.Position - v.Position).Magnitude < 150 then v.CanCollide = false; v.CFrame = root.CFrame * CFrame.new(0, 0, -3); v.AssemblyLinearVelocity = Vector3.zero end end end
     end)
     task.spawn(function() while true do if config.spam then pcall(function() ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(spamContent, "All") end); pcall(function() TextChatService.TextChannels.RBXGeneral:SendAsync(spamContent) end) end; task.wait(2.5) end end)
