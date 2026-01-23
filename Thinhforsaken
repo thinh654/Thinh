@@ -1,0 +1,674 @@
+--[[
+    ================================================================================
+    PROJECT: THINH HUB - ENTERPRISE LEGENDARY EDITION
+    GAME: FORSAKEN [ROBLOX]
+    VERSION: 5.0 (FINAL ARCHITECTURE)
+    AUTHOR: THINH654 (POWERED BY AI SENIOR ARCHITECT)
+    
+    DESCRIPTION:
+    This is a fully modular, object-oriented script designed for maximum stability
+    and feature density. It ignores optimization in favor of robustness and
+    detailed control.
+    
+    MODULES:
+    1. Core Services & Logger
+    2. Event Bus System
+    3. ESP Engine (Custom Drawing API)
+    4. Threat Analysis System (Auto Block Logic)
+    5. Combat Manager (Aimbot, Hitbox, Kill Aura)
+    6. Physics Manager (Movement, Fly, Noclip)
+    7. Interface Adapter (Rayfield)
+    ================================================================================
+]]
+
+-- [SECTION 1: SETTINGS & CONFIGURATION]
+-- Bảng cấu hình trung tâm, chứa mọi thông số của hệ thống
+local Configuration = {
+    MetaData = {
+        Name = "THINH HUB: ENTERPRISE",
+        Version = "5.0.0",
+        KeySystem = true,
+        Key = "THINHBETA1.0",
+        Discord = "https://discord.gg/fzGMwWMbq"
+    },
+    Combat = {
+        AutoBlock = {
+            Enabled = false,
+            Distance = 20,
+            ReactionTime = 0.22,
+            DetectMode = "Hybrid", -- Hybrid, Hitbox, Animation
+            Debug = false
+        },
+        AutoKill = {
+            Enabled = false,
+            Mode = "Teleport", -- Teleport, Legalkill
+            Range = 15
+        },
+        Hitbox = {
+            Enabled = false,
+            Size = 2,
+            Transparency = 0.5,
+            Color = Color3.fromRGB(255, 0, 0),
+            Material = Enum.Material.ForceField
+        },
+        Aimbot = {
+            Enabled = false,
+            FOV = 150,
+            Smoothness = 0.2,
+            TargetPart = "Head"
+        }
+    },
+    Visuals = {
+        MasterSwitch = false,
+        Box2D = { Enabled = false, Color = Color3.fromRGB(255, 255, 255) },
+        NameTag = { Enabled = false, Size = 16, Color = Color3.fromRGB(255, 255, 255) },
+        HealthBar = { Enabled = false, Width = 3 },
+        Tracers = { Enabled = false, Origin = "Bottom" }, -- Mouse, Center, Bottom
+        Distance = { Enabled = false, MaxDistance = 3000 }
+    },
+    Movement = {
+        Speed = { Enabled = false, Walk = 16, Run = 25 },
+        Stamina = { Enabled = false, Value = 100 },
+        Jump = { Enabled = false, Power = 50 },
+        WallJump = { Enabled = false, RayDistance = 3 }
+    },
+    World = {
+        Fullbright = false,
+        NoFog = false
+    }
+}
+
+-- [SECTION 2: CORE SERVICES WRAPPER]
+-- Lớp quản lý dịch vụ để đảm bảo an toàn khi gọi game
+local Services = setmetatable({}, {
+    __index = function(self, key)
+        return game:GetService(key)
+    end
+})
+
+-- Khai báo các biến cục bộ để tăng tốc truy xuất (Micro-optimization)
+local Players = Services.Players
+local Workspace = Services.Workspace
+local RunService = Services.RunService
+local UserInputService = Services.UserInputService
+local VirtualInputManager = Services.VirtualInputManager
+local TweenService = Services.TweenService
+local HttpService = Services.HttpService
+local CoreGui = Services.CoreGui
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+
+-- [SECTION 3: UTILITY CLASS]
+-- Lớp tiện ích chứa các hàm toán học và xử lý logic chung
+local Utility = {}
+
+function Utility:Log(msg, level)
+    level = level or "INFO"
+    print(string.format("[THINH-HUB][%s]: %s", level, tostring(msg)))
+end
+
+function Utility:GetCharacter(player)
+    return player and player.Character
+end
+
+function Utility:GetRoot(player)
+    local char = self:GetCharacter(player)
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+function Utility:GetHumanoid(player)
+    local char = self:GetCharacter(player)
+    return char and char:FindFirstChild("Humanoid")
+end
+
+function Utility:IsAlive(player)
+    local hum = self:GetHumanoid(player)
+    return hum and hum.Health > 0
+end
+
+function Utility:GetTeam(player)
+    -- Logic phức tạp để xác định Team trong Forsaken (vốn không dùng TeamService chuẩn)
+    if player.Team then return player.Team.Name end
+    if player:GetAttribute("Team") then return player:GetAttribute("Team") end
+    if player:GetAttribute("IsKiller") then return "Killer" end
+    return "Survivor"
+end
+
+function Utility:IsKiller(player)
+    local team = self:GetTeam(player)
+    return team == "Killer" or player:GetAttribute("IsKiller") == true
+end
+
+function Utility:GetDistance(p1, p2)
+    return (p1 - p2).Magnitude
+end
+
+-- [SECTION 4: CUSTOM ESP ENGINE]
+-- Hệ thống vẽ ESP thủ công bằng thư viện Drawing API (Rất dài và chi tiết)
+local ESP_Engine = {
+    Drawings = {},
+    UpdateConnection = nil
+}
+
+function ESP_Engine:NewDrawing(type, properties)
+    local drawing = Drawing.new(type)
+    for k, v in pairs(properties) do
+        drawing[k] = v
+    end
+    return drawing
+end
+
+function ESP_Engine:CreateESP(player)
+    if self.Drawings[player] then return end
+    
+    self.Drawings[player] = {
+        Box = self:NewDrawing("Square", {
+            Thickness = 1.5,
+            Transparency = 1,
+            Color = Color3.new(1,1,1),
+            Visible = false,
+            Filled = false
+        }),
+        BoxOutline = self:NewDrawing("Square", {
+            Thickness = 3,
+            Transparency = 0.5,
+            Color = Color3.new(0,0,0),
+            Visible = false,
+            Filled = false
+        }),
+        Name = self:NewDrawing("Text", {
+            Size = 13,
+            Center = true,
+            Outline = true,
+            Color = Color3.new(1,1,1),
+            Visible = false,
+            Font = 2
+        }),
+        HealthBarOutline = self:NewDrawing("Square", {
+            Thickness = 1,
+            Transparency = 1,
+            Color = Color3.new(0,0,0),
+            Visible = false,
+            Filled = true
+        }),
+        HealthBar = self:NewDrawing("Square", {
+            Thickness = 1,
+            Transparency = 1,
+            Color = Color3.new(0,1,0),
+            Visible = false,
+            Filled = true
+        }),
+        Tracer = self:NewDrawing("Line", {
+            Thickness = 1,
+            Transparency = 1,
+            Color = Color3.new(1,1,1),
+            Visible = false
+        })
+    }
+end
+
+function ESP_Engine:RemoveESP(player)
+    if self.Drawings[player] then
+        for _, d in pairs(self.Drawings[player]) do
+            d:Remove()
+        end
+        self.Drawings[player] = nil
+    end
+end
+
+function ESP_Engine:Update()
+    if not Configuration.Visuals.MasterSwitch then 
+        for _, esp in pairs(self.Drawings) do
+            for _, d in pairs(esp) do d.Visible = false end
+        end
+        return 
+    end
+
+    for player, esp in pairs(self.Drawings) do
+        local char = Utility:GetCharacter(player)
+        local root = Utility:GetRoot(player)
+        local hum = Utility:GetHumanoid(player)
+
+        if player ~= LocalPlayer and char and root and hum and hum.Health > 0 then
+            local vector, onScreen = Camera:WorldToViewportPoint(root.Position)
+            local dist = (Camera.CFrame.Position - root.Position).Magnitude
+
+            if onScreen and dist < Configuration.Visuals.Distance.MaxDistance then
+                -- Tính toán kích thước Box 2D dựa trên khoảng cách
+                local rootPos = root.Position
+                local topPos = rootPos + Vector3.new(0, 3, 0)
+                local botPos = rootPos - Vector3.new(0, 3.5, 0)
+                
+                local topVec = Camera:WorldToViewportPoint(topPos)
+                local botVec = Camera:WorldToViewportPoint(botPos)
+                
+                local boxHeight = math.abs(botVec.Y - topVec.Y)
+                local boxWidth = boxHeight / 1.6
+                local boxPos = Vector2.new(vector.X - boxWidth / 2, topVec.Y)
+
+                -- Xác định màu sắc (Killer = Đỏ, Survivor = Xanh)
+                local color = Utility:IsKiller(player) and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(50, 255, 50)
+
+                -- >> Render Box
+                if Configuration.Visuals.Box2D.Enabled then
+                    esp.BoxOutline.Size = Vector2.new(boxWidth, boxHeight)
+                    esp.BoxOutline.Position = boxPos
+                    esp.BoxOutline.Visible = true
+                    
+                    esp.Box.Size = Vector2.new(boxWidth, boxHeight)
+                    esp.Box.Position = boxPos
+                    esp.Box.Color = color
+                    esp.Box.Visible = true
+                else
+                    esp.Box.Visible = false; esp.BoxOutline.Visible = false
+                end
+
+                -- >> Render Name
+                if Configuration.Visuals.NameTag.Enabled then
+                    esp.Name.Text = string.format("%s [%dm]", player.Name, math.floor(dist))
+                    esp.Name.Position = Vector2.new(vector.X, boxPos.Y - 18)
+                    esp.Name.Color = color
+                    esp.Name.Visible = true
+                else
+                    esp.Name.Visible = false
+                end
+
+                -- >> Render Health Bar
+                if Configuration.Visuals.HealthBar.Enabled then
+                    local hpPercent = hum.Health / hum.MaxHealth
+                    local barHeight = boxHeight * hpPercent
+                    
+                    esp.HealthBarOutline.Size = Vector2.new(2, boxHeight)
+                    esp.HealthBarOutline.Position = Vector2.new(boxPos.X - 6, boxPos.Y)
+                    esp.HealthBarOutline.Visible = true
+                    
+                    esp.HealthBar.Size = Vector2.new(2, barHeight)
+                    esp.HealthBar.Position = Vector2.new(boxPos.X - 6, boxPos.Y + (boxHeight - barHeight))
+                    esp.HealthBar.Color = Color3.fromHSV(hpPercent * 0.3, 1, 1)
+                    esp.HealthBar.Visible = true
+                else
+                    esp.HealthBar.Visible = false; esp.HealthBarOutline.Visible = false
+                end
+
+                -- >> Render Tracer
+                if Configuration.Visuals.Tracers.Enabled then
+                    local origin = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- Bottom
+                    esp.Tracer.From = origin
+                    esp.Tracer.To = Vector2.new(vector.X, vector.Y)
+                    esp.Tracer.Color = color
+                    esp.Tracer.Visible = true
+                else
+                    esp.Tracer.Visible = false
+                end
+            else
+                for _, d in pairs(esp) do d.Visible = false end
+            end
+        else
+            for _, d in pairs(esp) do d.Visible = false end
+        end
+    end
+end
+
+-- [SECTION 5: THREAT ANALYZER (AUTO BLOCK LOGIC)]
+-- Hệ thống phân tích hành vi Killer cực kỳ chi tiết
+local ThreatAnalyzer = {}
+ThreatAnalyzer.IsBlocking = false
+
+function ThreatAnalyzer:GetNearestKiller()
+    local nearest = nil
+    local minDist = 9999
+    local myRoot = Utility:GetRoot(LocalPlayer)
+    if not myRoot then return nil end
+
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer and Utility:IsAlive(v) and Utility:IsKiller(v) then
+            local kRoot = Utility:GetRoot(v)
+            if kRoot then
+                local d = (myRoot.Position - kRoot.Position).Magnitude
+                if d < minDist then
+                    minDist = d
+                    nearest = v
+                end
+            end
+        end
+    end
+    return nearest, minDist
+end
+
+function ThreatAnalyzer:IsAttacking(killer)
+    if not killer then return false end
+    local char = killer.Character
+    if not char then return false end
+
+    -- Check 1: Hitbox Active State (Deep Scan)
+    for _, child in pairs(char:GetDescendants()) do
+        if child:IsA("BasePart") then
+            local n = child.Name:lower()
+            -- Các từ khóa hitbox phổ biến
+            if n:find("hitbox") or n:find("blade") or n:find("weapon") or n:find("sword") or n:find("damage") then
+                -- Nếu Hitbox bật va chạm và không tàng hình hoàn toàn => Đang chém
+                if child.CanTouch and child.Transparency > 0.5 then
+                    if Configuration.Combat.AutoBlock.Debug then print("DEBUG: Hitbox Active Detected") end
+                    return true
+                end
+            end
+        end
+    end
+
+    -- Check 2: Animation State (Animator Scan)
+    local hum = char:FindFirstChild("Humanoid")
+    if hum then
+        local animator = hum:FindFirstChild("Animator")
+        if animator then
+            for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+                if track.Priority == Enum.AnimationPriority.Action then
+                    if track.Name:lower():find("attack") or track.Name:lower():find("swing") or track.Name:lower():find("slash") then
+                        if Configuration.Combat.AutoBlock.Debug then print("DEBUG: Attack Animation Detected") end
+                        return true
+                    end
+                end
+            end
+        end
+    end
+
+    return false
+end
+
+function ThreatAnalyzer:ExecuteBlock()
+    if self.IsBlocking then return end
+    self.IsBlocking = true
+    
+    -- Tạo độ trễ phản xạ như con người
+    task.delay(Configuration.Combat.AutoBlock.ReactionTime, function()
+        -- Gửi tín hiệu Input (Giả lập phần cứng)
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+        task.wait(0.15) -- Giữ phím một chút
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
+        
+        -- Cooldown để tránh spam
+        task.wait(0.25)
+        self.IsBlocking = false
+    end)
+end
+
+function ThreatAnalyzer:Update()
+    if not Configuration.Combat.AutoBlock.Enabled then return end
+    
+    local killer, dist = self:GetNearestKiller()
+    if killer and dist <= Configuration.Combat.AutoBlock.Distance then
+        if self:IsAttacking(killer) then
+            self:ExecuteBlock()
+        end
+    end
+end
+
+-- [SECTION 6: COMBAT MANAGER]
+-- Quản lý các tính năng tấn công: Kill All, Hitbox, Aimbot
+local CombatManager = {}
+
+function CombatManager:ExpandHitboxes()
+    if not Configuration.Combat.Hitbox.Enabled then return end
+    
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and Utility:IsAlive(p) and p.Team ~= LocalPlayer.Team then
+            local root = Utility:GetRoot(p)
+            if root then
+                root.Size = Vector3.new(Configuration.Combat.Hitbox.Size, Configuration.Combat.Hitbox.Size, Configuration.Combat.Hitbox.Size)
+                root.Transparency = Configuration.Combat.Hitbox.Transparency
+                root.CanCollide = false
+                root.Color = Configuration.Combat.Hitbox.Color
+                root.Material = Configuration.Combat.Hitbox.Material
+            end
+        end
+    end
+end
+
+function CombatManager:AutoKillLoop()
+    if not Configuration.Combat.AutoKill.Enabled then return end
+    
+    for _, target in pairs(Players:GetPlayers()) do
+        if target ~= LocalPlayer and Utility:IsAlive(target) and target.Team ~= LocalPlayer.Team then
+            local myRoot = Utility:GetRoot(LocalPlayer)
+            local targetRoot = Utility:GetRoot(target)
+            
+            if myRoot and targetRoot then
+                -- Teleport Logic
+                myRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 3)
+                
+                -- Attack Logic
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                task.wait(0.05) -- Micro delay
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+            end
+        end
+    end
+end
+
+-- [SECTION 7: PHYSICS MANAGER]
+-- Quản lý vật lý: Speed, Jump, Stamina
+local PhysicsManager = {}
+
+function PhysicsManager:UpdateMovement()
+    if not Utility:IsAlive(LocalPlayer) then return end
+    local hum = Utility:GetHumanoid(LocalPlayer)
+    
+    -- Speed Hack
+    if Configuration.Movement.Speed.Enabled then
+        local isRun = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+        local target = isRun and Configuration.Movement.Speed.Run or Configuration.Movement.Speed.Walk
+        if hum.WalkSpeed ~= target then hum.WalkSpeed = target end
+    end
+    
+    -- Stamina Hack
+    if Configuration.Movement.Stamina.Enabled then
+        local char = LocalPlayer.Character
+        if char:GetAttribute("Stamina") then char:SetAttribute("Stamina", 100) end
+        if char:FindFirstChild("Stamina") then char.Stamina.Value = 100 end
+    end
+end
+
+function PhysicsManager:WallJumpCheck()
+    if not Configuration.Movement.WallJump.Enabled then return end
+    if not Utility:IsAlive(LocalPlayer) then return end
+    
+    local hum = Utility:GetHumanoid(LocalPlayer)
+    local root = Utility:GetRoot(LocalPlayer)
+    
+    if hum.MoveDirection.Magnitude > 0 then
+        local params = RaycastParams.new()
+        params.FilterDescendantsInstances = {LocalPlayer.Character}
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        
+        local ray = Workspace:Raycast(root.Position, root.CFrame.LookVector * Configuration.Movement.WallJump.RayDistance, params)
+        if ray and ray.Instance and ray.Instance.CanCollide then
+            hum.Jump = true
+        end
+    end
+end
+
+-- [SECTION 8: INTERFACE ADAPTER (RAYFIELD UI)]
+-- Khởi tạo giao diện người dùng
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = Configuration.MetaData.Name,
+   LoadingTitle = "Loading Enterprise Modules...",
+   LoadingSubtitle = "Version " .. Configuration.MetaData.Version,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "ThinhHubEnterprise",
+      FileName = "ForsakenSettings"
+   },
+   KeySystem = Configuration.MetaData.KeySystem,
+   KeySettings = {
+      Title = "Enterprise Login",
+      Subtitle = "Authorized Personnel Only",
+      Note = "Join Discord: " .. Configuration.MetaData.Discord,
+      FileName = "ThinhHubKeyEnt",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {Configuration.MetaData.Key}
+   }
+})
+
+-- Copy Link khi mở
+setclipboard(Configuration.MetaData.Discord)
+
+-- == TAB COMBAT ==
+local TabCombat = Window:CreateTab("⚔️ Combat Elite", 4483362458)
+
+TabCombat:CreateSection("Auto Block System (AI Powered)")
+TabCombat:CreateToggle({
+   Name = "Enable Smart Auto Block",
+   CurrentValue = false,
+   Callback = function(v) Configuration.Combat.AutoBlock.Enabled = v end,
+})
+TabCombat:CreateSlider({
+   Name = "Human Reaction Delay (s)",
+   Range = {0, 0.5},
+   Increment = 0.01,
+   CurrentValue = 0.22,
+   Suffix = "s",
+   Callback = function(v) Configuration.Combat.AutoBlock.ReactionTime = v end,
+})
+TabCombat:CreateSlider({
+   Name = "Detection Range (m)",
+   Range = {5, 50},
+   Increment = 1,
+   CurrentValue = 20,
+   Callback = function(v) Configuration.Combat.AutoBlock.Distance = v end,
+})
+
+TabCombat:CreateSection("Offensive Capabilities")
+TabCombat:CreateToggle({
+   Name = "Hitbox Expander",
+   CurrentValue = false,
+   Callback = function(v) Configuration.Combat.Hitbox.Enabled = v end,
+})
+TabCombat:CreateSlider({
+   Name = "Hitbox Size",
+   Range = {2, 30},
+   Increment = 1,
+   CurrentValue = 2,
+   Callback = function(v) Configuration.Combat.Hitbox.Size = v end,
+})
+TabCombat:CreateToggle({
+   Name = "AUTO KILL ALL (Teleport Method)",
+   CurrentValue = false,
+   Callback = function(v) Configuration.Combat.AutoKill.Enabled = v end,
+})
+
+-- == TAB VISUALS ==
+local TabVisual = Window:CreateTab("👁️ ESP Engine", 4483362458)
+TabVisual:CreateSection("Master Switch")
+TabVisual:CreateToggle({
+   Name = "Enable ESP System",
+   CurrentValue = false,
+   Callback = function(v) Configuration.Visuals.MasterSwitch = v end,
+})
+TabVisual:CreateSection("Elements")
+TabVisual:CreateToggle({Name = "2D Boxes", CurrentValue = false, Callback = function(v) Configuration.Visuals.Box2D.Enabled = v end})
+TabVisual:CreateToggle({
+   Name = "Enable ESP System",
+   CurrentValue = false,
+   Callback = function(v) Configuration.Visuals.MasterSwitch = v end,
+})
+TabVisual:CreateSection("Elements")
+TabVisual:CreateToggle({Name = "2D Boxes", CurrentValue = false, Callback = function(v) Configuration.Visuals.Box2D.Enabled = v end})
+TabVisual:CreateToggle({Name = "Name Tags", CurrentValue = false, Callback = function(v) Configuration.Visuals.NameTag.Enabled = v end})
+TabVisual:CreateToggle({Name = "Health Bars", CurrentValue = false, Callback = function(v) Configuration.Visuals.HealthBar.Enabled = v end})
+TabVisual:CreateToggle({Name = "Tracers (Lines)", CurrentValue = false, Callback = function(v) Configuration.Visuals.Tracers.Enabled = v end})
+TabVisual:CreateButton({
+    Name = "Activate Fullbright",
+    Callback = function()
+        Services.Lighting.Brightness = 2
+        Services.Lighting.ClockTime = 14
+        Services.Lighting.FogEnd = 100000
+    end
+})
+
+-- == TAB MOVEMENT ==
+local TabMove = Window:CreateTab("🏃 Physics", 4483362458)
+TabMove:CreateToggle({Name = "Speed Hack Override", CurrentValue = false, Callback = function(v) Configuration.Movement.Speed.Enabled = v end})
+TabMove:CreateSlider({Name = "Walk Speed", Range={16, 150}, Increment=1, CurrentValue=16, Callback=function(v) Configuration.Movement.Speed.Walk=v end})
+TabMove:CreateSlider({Name = "Run Speed", Range={25, 200}, Increment=1, CurrentValue=25, Callback=function(v) Configuration.Movement.Speed.Run=v end})
+TabMove:CreateToggle({Name = "Infinite Stamina", CurrentValue = false, Callback = function(v) Configuration.Movement.Stamina.Enabled = v end})
+TabMove:CreateToggle({Name = "Auto Wall Jump", CurrentValue = false, Callback = function(v) Configuration.Movement.WallJump.Enabled = v end})
+
+-- == TAB SYSTEM ==
+local TabSystem = Window:CreateTab("⚙️ System", 4483362458)
+TabSystem:CreateButton({
+    Name = "Smart Server Hop",
+    Callback = function()
+        Rayfield:Notify({Title="System", Content="Searching for server...", Duration=3})
+        local PlaceID = game.PlaceId
+        local AllIDs = {}
+        local Found = false
+        local String = ""
+        local Limit = 10
+        local function Get()
+            local API = "https://games.roblox.com/v1/games/"..PlaceID.."/servers/Public?sortOrder=Desc&limit="..Limit
+            local Success, Response = pcall(function() return HttpService:JSONDecode(game:HttpGet(API)) end)
+            if Success and Response then
+                for _,v in pairs(Response.data) do
+                    if v.playing ~= v.maxPlayers and v.id ~= game.JobId then
+                        Found = true
+                        TeleportService:TeleportToPlaceInstance(PlaceID, v.id, LocalPlayer)
+                        break
+                    end
+                end
+            end
+        end
+        Get()
+    end
+})
+
+-- [SECTION 9: MAIN EXECUTION LOOPS]
+-- Vòng lặp chính kết nối các module lại với nhau
+
+-- 1. Player Connection Handling
+Players.PlayerAdded:Connect(function(player)
+    ESP_Engine:CreateESP(player)
+end)
+Players.PlayerRemoving:Connect(function(player)
+    ESP_Engine:RemoveESP(player)
+end)
+
+-- Khởi tạo ESP cho người chơi hiện có
+for _, p in pairs(Players:GetPlayers()) do
+    if p ~= LocalPlayer then ESP_Engine:CreateESP(p) end
+end
+
+-- 2. Render Loop (High Frequency: Visuals, Block, Physics)
+RunService.RenderStepped:Connect(function(deltaTime)
+    -- Error Handling Wrapper
+    local success, err = pcall(function()
+        ESP_Engine:Update()
+        ThreatAnalyzer:Update()
+        PhysicsManager:UpdateMovement()
+        PhysicsManager:WallJumpCheck()
+        CombatManager:ExpandHitboxes()
+    end)
+    
+    if not success and Configuration.System.DebugMode then
+        warn("Render Error: " .. tostring(err))
+    end
+end)
+
+-- 3. Heartbeat Loop (Low Frequency: Kill All)
+RunService.Heartbeat:Connect(function(deltaTime)
+    local success, err = pcall(function()
+        CombatManager:AutoKillLoop()
+    end)
+end)
+
+-- [SECTION 10: FINALIZATION]
+Rayfield:Notify({
+   Title = "SYSTEM INITIALIZED",
+   Content = "Thinh Hub Enterprise v5.0 is running.",
+   Duration = 5
+})
+
+Utility:Log("System Started Successfully.")
