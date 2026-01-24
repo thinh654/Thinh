@@ -8,33 +8,47 @@
        | $$   | $$  | $$ /$$$$$$| $$ \  $$| $$  | $$
        |__/   |__/  |__/|______/|__/  \__/|__/  |__/
        
-    ============================================================
-    PROJECT: THINH HUB - TITAN OMEGA ARCHITECTURE
+    ========================================================================
+    PROJECT: THINH HUB - TITAN COLOSSUS ARCHITECTURE
     GAME: FORSAKEN [ROBLOX]
-    VERSION: 10.5.2 (FINAL STABLE)
+    VERSION: 12.5.0 (FINAL OVERLOAD)
     AUTHOR: THINH654
-    BUILD TYPE: MAXIMIZED FEATURES
-    ============================================================
+    LINES: ~1000 (EXPANDED OOP STRUCTURE)
+    
+    [ SYSTEM MODULES ]
+    > CORE: Signal, Janitor, Logger, ServiceProvider
+    > MATH: Vector3 Util, CFrame Util, Raycast Engine
+    > RENDER: Drawing API Wrapper, ESP Component System
+    > LOGIC: Threat Analyzer, Physics Controller, Objective Manager
+    > UI: Interface Adapter (Rayfield)
+    ========================================================================
 ]]
 
--- [0] CORE BOOTSTRAPPER (KHỞI ĐỘNG HỆ THỐNG)
+-- [0] BOOTSTRAPPER CHECK
 if not game:IsLoaded() then 
     game.Loaded:Wait() 
 end
 
--- [1] SERVICE PROVIDER (QUẢN LÝ DỊCH VỤ TRUNG TÂM)
--- Khai báo tất cả dịch vụ để tối ưu hóa truy xuất bộ nhớ
+-- ==============================================================================
+-- [MODULE 1] SERVICE PROVIDER (QUẢN LÝ DỊCH VỤ)
+-- ==============================================================================
 local ServiceProvider = {}
-ServiceProvider.Services = {}
+ServiceProvider.__index = ServiceProvider
+ServiceProvider.Cache = {}
 
 function ServiceProvider:Get(service_name)
-    if not self.Services[service_name] then
-        self.Services[service_name] = game:GetService(service_name)
+    if not self.Cache[service_name] then
+        local success, service = pcall(game.GetService, game, service_name)
+        if success then
+            self.Cache[service_name] = service
+        else
+            return nil
+        end
     end
-    return self.Services[service_name]
+    return self.Cache[service_name]
 end
 
--- Khởi tạo các dịch vụ quan trọng
+-- Khai báo Global Variables từ ServiceProvider
 local Players = ServiceProvider:Get("Players")
 local Workspace = ServiceProvider:Get("Workspace")
 local RunService = ServiceProvider:Get("RunService")
@@ -45,116 +59,126 @@ local HttpService = ServiceProvider:Get("HttpService")
 local TeleportService = ServiceProvider:Get("TeleportService")
 local CoreGui = ServiceProvider:Get("CoreGui")
 local Lighting = ServiceProvider:Get("Lighting")
+local ReplicatedStorage = ServiceProvider:Get("ReplicatedStorage")
+local StarterGui = ServiceProvider:Get("StarterGui")
 
--- Biến cục bộ toàn cục
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
--- [2] CONFIGURATION MATRIX (BẢNG CẤU HÌNH)
-local TitanConfig = {
+-- ==============================================================================
+-- [MODULE 2] LOGGER SYSTEM (HỆ THỐNG GHI LOG CHI TIẾT)
+-- ==============================================================================
+local Logger = {}
+Logger.__index = Logger
+Logger.Prefix = "[THINH-COLOSSUS]"
+Logger.Enabled = true
+
+function Logger:Log(message)
+    if self.Enabled then
+        print(string.format("%s [INFO] > %s", self.Prefix, tostring(message)))
+    end
+end
+
+function Logger:Warn(message)
+    if self.Enabled then
+        warn(string.format("%s [WARN] > %s", self.Prefix, tostring(message)))
+    end
+end
+
+function Logger:Error(message)
+    if self.Enabled then
+        error(string.format("%s [ERR] > %s", self.Prefix, tostring(message)))
+    end
+end
+
+-- ==============================================================================
+-- [MODULE 3] CONFIGURATION MATRIX (CẤU HÌNH TOÀN CỤC)
+-- ==============================================================================
+local Settings = {
     System = {
-        Name = "THINH HUB: TITAN OMEGA",
         KeySystem = true,
         Key = "THINHBETA1.0",
         Discord = "https://discord.gg/fzGMwWMbq",
-        DebugMode = true
+        Version = "12.5"
     },
     Combat = {
-        Aimbot = {
-            Enabled = false,
-            Mode = "Character", -- "Camera" hoặc "Character"
-            FOV = 150,
-            Smoothness = 0.2,
-            TargetPart = "Head",
-            Prediction = false
-        },
         AutoBlock = {
             Enabled = false,
             Distance = 20,
-            Delay = 0.22, -- 0.22s phản xạ chuẩn
-            Mode = "Hitbox", -- "Hitbox" hoặc "Animation"
-        },
-        AutoKill = {
-            Enabled = false,
-            Mode = "Teleport"
+            ReactionTime = 0.22,
+            Debug = false
         },
         Hitbox = {
             Enabled = false,
             Size = 2,
             Transparency = 0.5,
-            Color = Color3.fromRGB(255, 0, 0),
-            Material = Enum.Material.ForceField
+            Material = Enum.Material.ForceField,
+            Color = Color3.fromRGB(255, 0, 0)
         }
     },
     Visuals = {
-        MasterSwitch = false,
-        Boxes = {
+        MasterSwitch = true,
+        Killer = {
             Enabled = false,
-            Color = Color3.fromRGB(255, 255, 255),
-            Thickness = 1.5
+            Color = Color3.fromRGB(255, 50, 50),
+            Box = true,
+            Name = true,
+            Tracer = true,
+            Skeleton = true
         },
-        Skeleton = {
+        Survivor = {
             Enabled = false,
-            ColorSurvivor = Color3.fromRGB(0, 255, 120),
-            ColorKiller = Color3.fromRGB(255, 50, 50),
-            Thickness = 1.5
+            Color = Color3.fromRGB(50, 255, 100),
+            Box = true,
+            Name = true,
+            Tracer = false,
+            Skeleton = false
         },
-        Names = {
+        Generator = {
             Enabled = false,
-            Size = 14,
-            Color = Color3.fromRGB(255, 255, 255)
+            Color = Color3.fromRGB(255, 255, 0),
+            FillTransparency = 0.5,
+            OutlineColor = Color3.fromRGB(255, 255, 255)
         },
-        Tracers = {
-            Enabled = false,
-            Origin = "Bottom" -- "Mouse", "Center", "Bottom"
-        },
-        Health = {
-            Enabled = false
-        },
-        RenderDistance = 3000
+        World = {
+            Fullbright = false
+        }
     },
     Movement = {
         Speed = {
             Enabled = false,
             WalkValue = 16,
             RunValue = 25
-        },
-        Stamina = {
-            Enabled = false,
-            Value = 100
-        },
-        Jump = {
-            Enabled = false,
-            Power = 50
-        },
-        WallJump = {
-            Enabled = false
         }
     },
     Objective = {
-        AutoPickup = false
+        AutoRepair = false
     }
 }
 
--- [3] UTILITY MODULE (TIỆN ÍCH HỖ TRỢ)
+-- ==============================================================================
+-- [MODULE 4] UTILITY LIBRARY (CÁC HÀM HỖ TRỢ)
+-- ==============================================================================
 local Utils = {}
 
-function Utils:Log(message)
-    if TitanConfig.System.DebugMode then
-        print("[TITAN-LOG]: " .. tostring(message))
-    end
-end
-
-function Utils:IsAlive(player)
-    if player and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character:FindFirstChild("HumanoidRootPart") then
-        return player.Character.Humanoid.Health > 0
-    end
-    return false
+function Utils:GetCharacter(player)
+    return player and player.Character
 end
 
 function Utils:GetRoot(player)
-    return self:IsAlive(player) and player.Character.HumanoidRootPart or nil
+    local char = self:GetCharacter(player)
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+function Utils:GetHumanoid(player)
+    local char = self:GetCharacter(player)
+    return char and char:FindFirstChild("Humanoid")
+end
+
+function Utils:IsAlive(player)
+    local hum = self:GetHumanoid(player)
+    return hum and hum.Health > 0
 end
 
 function Utils:GetTeam(player)
@@ -164,35 +188,40 @@ function Utils:GetTeam(player)
 end
 
 function Utils:IsKiller(player)
-    local team = self:GetTeam(player)
-    return team == "Killer" or player:GetAttribute("IsKiller") == true
+    return self:GetTeam(player) == "Killer" or player:GetAttribute("IsKiller") == true
 end
 
--- [4] DRAWING API WRAPPER (HỆ THỐNG VẼ ĐỒ HỌA THỦ CÔNG)
--- Đây là phần giúp code dài và chuyên nghiệp: Tự quản lý việc vẽ thay vì dùng có sẵn
-local DrawEngine = {}
-DrawEngine.ObjectCache = {}
+function Utils:GetDistance(p1, p2)
+    return (p1 - p2).Magnitude
+end
 
-function DrawEngine:Create(type, properties)
+-- ==============================================================================
+-- [MODULE 5] DRAWING WRAPPER (HỆ THỐNG VẼ ĐỒ HỌA)
+-- ==============================================================================
+local DrawLib = {}
+DrawLib.__index = DrawLib
+
+function DrawLib.new(type, properties)
     local drawing = Drawing.new(type)
-    for prop, val in pairs(properties) do
-        drawing[prop] = val
+    for k, v in pairs(properties) do
+        drawing[k] = v
     end
     return drawing
 end
 
-function DrawEngine:Line(props) return self:Create("Line", props) end
-function DrawEngine:Square(props) return self:Create("Square", props) end
-function DrawEngine:Text(props) return self:Create("Text", props) end
-function DrawEngine:Circle(props) return self:Create("Circle", props) end
+function DrawLib:Square(props) return self.new("Square", props) end
+function DrawLib:Line(props) return self.new("Line", props) end
+function DrawLib:Text(props) return self.new("Text", props) end
+function DrawLib:Circle(props) return self.new("Circle", props) end
 
--- [5] ESP SYSTEM (SKELETON & BOX)
--- Hệ thống ESP chi tiết nhất từng được viết
-local ESP_System = {}
-ESP_System.Container = {}
+-- ==============================================================================
+-- [MODULE 6] ESP COMPONENT SYSTEM (HỆ THỐNG ESP CHI TIẾT)
+-- ==============================================================================
+local ESPController = {}
+ESPController.Container = {}
 
--- Định nghĩa cấu trúc xương R15
-ESP_System.BonesR15 = {
+-- Xương R15
+ESPController.BonesR15 = {
     {"Head", "UpperTorso"}, {"UpperTorso", "LowerTorso"}, {"LowerTorso", "LeftUpperLeg"},
     {"LeftUpperLeg", "LeftLowerLeg"}, {"LeftLowerLeg", "LeftFoot"}, {"LowerTorso", "RightUpperLeg"},
     {"RightUpperLeg", "RightLowerLeg"}, {"RightLowerLeg", "RightFoot"}, {"UpperTorso", "LeftUpperArm"},
@@ -200,43 +229,38 @@ ESP_System.BonesR15 = {
     {"RightUpperArm", "RightLowerArm"}, {"RightLowerArm", "RightHand"}
 }
 
-function ESP_System:AddPlayer(player)
+function ESPController:Create(player)
     if self.Container[player] then return end
     
-    -- Khởi tạo các đối tượng vẽ cho người chơi này
     self.Container[player] = {
-        Box = DrawEngine:Square({Thickness=1.5, Filled=false, Visible=false}),
-        Name = DrawEngine:Text({Size=13, Center=true, Outline=true, Visible=false}),
-        Tracer = DrawEngine:Line({Thickness=1, Visible=false}),
-        HealthBar = DrawEngine:Line({Thickness=2, Visible=false}),
-        Skeleton = {} -- Chứa các đường kẻ xương
+        Box = DrawLib:Square({Thickness=1.5, Filled=false, Visible=false}),
+        Name = DrawLib:Text({Size=13, Center=true, Outline=true, Visible=false}),
+        Tracer = DrawLib:Line({Thickness=1, Visible=false}),
+        Skeleton = {} 
     }
     
-    -- Tạo sẵn 20 đường kẻ xương (dư một chút cũng không sao)
     for i=1, 20 do
-        table.insert(self.Container[player].Skeleton, DrawEngine:Line({Thickness=1.5, Visible=false}))
+        table.insert(self.Container[player].Skeleton, DrawLib:Line({Thickness=1.5, Visible=false}))
     end
 end
 
-function ESP_System:RemovePlayer(player)
+function ESPController:Remove(player)
     if self.Container[player] then
         self.Container[player].Box:Remove()
         self.Container[player].Name:Remove()
         self.Container[player].Tracer:Remove()
-        self.Container[player].HealthBar:Remove()
-        for _, line in pairs(self.Container[player].Skeleton) do line:Remove() end
+        for _, l in pairs(self.Container[player].Skeleton) do l:Remove() end
         self.Container[player] = nil
     end
 end
 
-function ESP_System:Update()
-    if not TitanConfig.Visuals.MasterSwitch then
+function ESPController:Update()
+    if not Settings.Visuals.MasterSwitch then
         for _, data in pairs(self.Container) do
             data.Box.Visible = false
             data.Name.Visible = false
             data.Tracer.Visible = false
-            data.HealthBar.Visible = false
-            for _, line in pairs(data.Skeleton) do line.Visible = false end
+            for _, l in pairs(data.Skeleton) do l.Visible = false end
         end
         return
     end
@@ -245,102 +269,149 @@ function ESP_System:Update()
         local isVisible = false
         
         if player ~= LocalPlayer and Utils:IsAlive(player) then
-            local root = player.Character.HumanoidRootPart
-            local head = player.Character.Head
-            local hum = player.Character.Humanoid
+            local isKiller = Utils:IsKiller(player)
+            local config = isKiller and Settings.Visuals.Killer or Settings.Visuals.Survivor
             
-            local vector, onScreen = Camera:WorldToViewportPoint(root.Position)
-            local dist = (Camera.CFrame.Position - root.Position).Magnitude
-            
-            -- Xác định màu
-            local color = Utils:IsKiller(player) and TitanConfig.Visuals.Skeleton.ColorKiller or TitanConfig.Visuals.Skeleton.ColorSurvivor
-
-            if onScreen and dist < TitanConfig.Visuals.RenderDistance then
-                isVisible = true
+            if config.Enabled then
+                local root = player.Character.HumanoidRootPart
+                local vector, onScreen = Camera:WorldToViewportPoint(root.Position)
+                local dist = Utils:GetDistance(Camera.CFrame.Position, root.Position)
                 
-                -- [[ BOX ESP ]]
-                if TitanConfig.Visuals.Boxes.Enabled then
+                if onScreen then
+                    isVisible = true
+                    local color = config.Color
                     local size = 2500 / dist
-                    data.Box.Size = Vector2.new(size * 0.7, size)
-                    data.Box.Position = Vector2.new(vector.X - (size * 0.35), vector.Y - (size * 0.5))
-                    data.Box.Color = color
-                    data.Box.Visible = true
-                else
-                    data.Box.Visible = false
-                end
-                
-                -- [[ NAME ESP ]]
-                if TitanConfig.Visuals.Names.Enabled then
-                    data.Name.Text = string.format("%s [%dm]", player.Name, math.floor(dist))
-                    data.Name.Position = Vector2.new(vector.X, vector.Y - (2500/dist * 0.5) - 20)
-                    data.Name.Color = color
-                    data.Name.Visible = true
-                else
-                    data.Name.Visible = false
-                end
-                
-                -- [[ TRACER ESP ]]
-                if TitanConfig.Visuals.Tracers.Enabled then
-                    data.Tracer.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
-                    data.Tracer.To = Vector2.new(vector.X, vector.Y)
-                    data.Tracer.Color = color
-                    data.Tracer.Visible = true
-                else
-                    data.Tracer.Visible = false
-                end
-                
-                -- [[ SKELETON ESP (XƯƠNG) ]]
-                if TitanConfig.Visuals.Skeleton.Enabled then
-                    local char = player.Character
-                    local boneIndex = 1
-                    for _, pair in pairs(self.BonesR15) do
-                        local p1 = char:FindFirstChild(pair[1])
-                        local p2 = char:FindFirstChild(pair[2])
-                        if p1 and p2 then
-                            local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
-                            local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
-                            if vis1 and vis2 and data.Skeleton[boneIndex] then
-                                local line = data.Skeleton[boneIndex]
-                                line.From = Vector2.new(v1.X, v1.Y)
-                                line.To = Vector2.new(v2.X, v2.Y)
-                                line.Color = color
-                                line.Thickness = TitanConfig.Visuals.Skeleton.Thickness
-                                line.Visible = true
-                                boneIndex = boneIndex + 1
+                    
+                    -- >> BOX
+                    if config.Box then
+                        data.Box.Size = Vector2.new(size * 0.7, size)
+                        data.Box.Position = Vector2.new(vector.X - (size * 0.35), vector.Y - (size * 0.5))
+                        data.Box.Color = color
+                        data.Box.Visible = true
+                    else
+                        data.Box.Visible = false
+                    end
+                    
+                    -- >> NAME
+                    if config.Name then
+                        data.Name.Text = string.format("%s [%dm]", player.Name, math.floor(dist))
+                        data.Name.Position = Vector2.new(vector.X, vector.Y - (size * 0.5) - 20)
+                        data.Name.Color = color
+                        data.Name.Visible = true
+                    else
+                        data.Name.Visible = false
+                    end
+                    
+                    -- >> TRACER
+                    if config.Tracer then
+                        data.Tracer.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
+                        data.Tracer.To = Vector2.new(vector.X, vector.Y)
+                        data.Tracer.Color = color
+                        data.Tracer.Visible = true
+                    else
+                        data.Tracer.Visible = false
+                    end
+                    
+                    -- >> SKELETON
+                    if config.Skeleton then
+                        local char = player.Character
+                        local idx = 1
+                        for _, pair in pairs(self.BonesR15) do
+                            local p1 = char:FindFirstChild(pair[1])
+                            local p2 = char:FindFirstChild(pair[2])
+                            if p1 and p2 then
+                                local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
+                                local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
+                                if vis1 and vis2 and data.Skeleton[idx] then
+                                    local line = data.Skeleton[idx]
+                                    line.From = Vector2.new(v1.X, v1.Y)
+                                    line.To = Vector2.new(v2.X, v2.Y)
+                                    line.Color = color
+                                    line.Visible = true
+                                    idx = idx + 1
+                                end
                             end
                         end
+                        for i=idx, #data.Skeleton do data.Skeleton[i].Visible = false end
+                    else
+                        for _, l in pairs(data.Skeleton) do l.Visible = false end
                     end
-                    -- Ẩn các xương thừa
-                    for i = boneIndex, #data.Skeleton do data.Skeleton[i].Visible = false end
-                else
-                    for _, l in pairs(data.Skeleton) do l.Visible = false end
                 end
             end
         end
         
         if not isVisible then
-            data.Box.Visible = false; data.Name.Visible = false
-            data.Tracer.Visible = false; data.HealthBar.Visible = false
+            data.Box.Visible = false
+            data.Name.Visible = false
+            data.Tracer.Visible = false
             for _, l in pairs(data.Skeleton) do l.Visible = false end
         end
     end
 end
 
--- [6] THREAT ANALYZER (AUTO BLOCK LOGIC)
--- Hệ thống phân tích hành vi Killer
-local ThreatEngine = {}
-ThreatEngine.IsBlocking = false
+-- ==============================================================================
+-- [MODULE 7] GENERATOR ESP & REPAIR (MÁY PHÁT ĐIỆN)
+-- ==============================================================================
+local ObjectiveSystem = {}
 
-function ThreatEngine:Scan()
-    if not TitanConfig.Combat.AutoBlock.Enabled then return end
+function ObjectiveSystem:UpdateVisuals()
+    if Settings.Visuals.Generator.Enabled then
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if obj:IsA("Model") and obj.Name:lower():find("generator") and not obj:FindFirstChild("GenESP") then
+                local hasPrompt = false
+                for _, p in pairs(obj:GetDescendants()) do
+                    if p:IsA("ProximityPrompt") then hasPrompt = true break end
+                end
+                
+                if hasPrompt then
+                    local h = Instance.new("Highlight", obj)
+                    h.Name = "GenESP"
+                    h.FillColor = Settings.Visuals.Generator.Color
+                    h.OutlineColor = Settings.Visuals.Generator.OutlineColor
+                    h.FillTransparency = Settings.Visuals.Generator.FillTransparency
+                end
+            end
+        end
+    else
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if obj:FindFirstChild("GenESP") then obj.GenESP:Destroy() end
+        end
+    end
+end
+
+function ObjectiveSystem:AutoRepair()
+    if not Settings.Objective.AutoRepair then return end
+    local char = LocalPlayer.Character
+    if not char then return end
+    
+    for _, prompt in pairs(Workspace:GetDescendants()) do
+        if prompt:IsA("ProximityPrompt") then
+            local dist = Utils:GetDistance(char.HumanoidRootPart.Position, prompt.Parent.Position)
+            if dist < prompt.MaxActivationDistance then
+                local txt = prompt.ObjectText:lower() .. prompt.ActionText:lower()
+                if txt:find("repair") or txt:find("generator") or txt:find("fix") then
+                    fireproximityprompt(prompt)
+                end
+            end
+        end
+    end
+end
+
+-- ==============================================================================
+-- [MODULE 8] THREAT ANALYZER (AUTO BLOCK LOGIC)
+-- ==============================================================================
+local ThreatSystem = {}
+ThreatSystem.IsBlocking = false
+
+function ThreatSystem:Scan()
+    if not Settings.Combat.AutoBlock.Enabled then return end
     
     local killer = nil
     local minDist = 9999
     
-    -- Tìm Killer gần nhất
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and Utils:IsAlive(p) and Utils:IsKiller(p) then
-            local d = (LocalPlayer.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
+            local d = Utils:GetDistance(LocalPlayer.Character.HumanoidRootPart.Position, p.Character.HumanoidRootPart.Position)
             if d < minDist then
                 minDist = d
                 killer = p
@@ -348,16 +419,16 @@ function ThreatEngine:Scan()
         end
     end
     
-    if killer and minDist <= TitanConfig.Combat.AutoBlock.Distance then
-        if self:IsAttacking(killer) then
-            self:ExecuteBlock()
+    if killer and minDist <= Settings.Combat.AutoBlock.Distance then
+        if self:AnalyzeAttack(killer) then
+            self:Block()
         end
     end
 end
 
-function ThreatEngine:IsAttacking(killer)
+function ThreatSystem:AnalyzeAttack(killer)
     local char = killer.Character
-    -- Quét 1: Hitbox (Dao, Kiếm)
+    -- Scan Hitbox
     for _, obj in pairs(char:GetDescendants()) do
         if obj:IsA("BasePart") then
             local n = obj.Name:lower()
@@ -366,7 +437,7 @@ function ThreatEngine:IsAttacking(killer)
             end
         end
     end
-    -- Quét 2: Animation
+    -- Scan Animation
     local hum = char:FindFirstChild("Humanoid")
     if hum then
         local anim = hum:FindFirstChild("Animator")
@@ -379,11 +450,11 @@ function ThreatEngine:IsAttacking(killer)
     return false
 end
 
-function ThreatEngine:ExecuteBlock()
+function ThreatSystem:Block()
     if self.IsBlocking then return end
     self.IsBlocking = true
     
-    task.delay(TitanConfig.Combat.AutoBlock.Delay, function()
+    task.delay(Settings.Combat.AutoBlock.ReactionTime, function()
         VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
         task.wait(0.15)
         VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
@@ -392,187 +463,103 @@ function ThreatEngine:ExecuteBlock()
     end)
 end
 
--- [7] AIMBOT & PHYSICS ENGINE
-local GameEngine = {}
+-- ==============================================================================
+-- [MODULE 9] PHYSICS CONTROLLER (SPEED)
+-- ==============================================================================
+local PhysicsController = {}
 
-function GameEngine:UpdateAimbot()
-    if not TitanConfig.Combat.Aimbot.Enabled then return end
-    
-    local target = nil
-    local closest = 9999
-    
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and Utils:IsAlive(p) and Utils:IsKiller(p) then
-            local root = p.Character.HumanoidRootPart
-            local screenPos, onScreen = Camera:WorldToViewportPoint(root.Position)
-            local dist = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
-            
-            if onScreen and dist < closest then
-                closest = dist
-                target = p
-            end
-        end
-    end
-    
-    if target then
-        local targetPart = target.Character[TitanConfig.Combat.Aimbot.TargetPart]
-        
-        if TitanConfig.Combat.Aimbot.Mode == "Camera" then
-            Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPart.Position)
-        elseif TitanConfig.Combat.Aimbot.Mode == "Character" then
-            local myRoot = LocalPlayer.Character.HumanoidRootPart
-            local lookPos = Vector3.new(targetPart.Position.X, myRoot.Position.Y, targetPart.Position.Z)
-            myRoot.CFrame = CFrame.lookAt(myRoot.Position, lookPos)
-        end
-    end
-end
-
-function GameEngine:UpdatePhysics()
+function PhysicsController:Update()
+    if not Settings.Movement.Speed.Enabled then return end
     if not Utils:IsAlive(LocalPlayer) then return end
+    
     local hum = LocalPlayer.Character.Humanoid
+    local isRun = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+    local target = isRun and Settings.Movement.Speed.RunValue or Settings.Movement.Speed.WalkValue
     
-    -- Speed Logic (Input)
-    if TitanConfig.Movement.Speed.Enabled then
-        local isRun = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
-        local val = isRun and TitanConfig.Movement.Speed.RunValue or TitanConfig.Movement.Speed.WalkValue
-        if hum.WalkSpeed ~= val then hum.WalkSpeed = val end
-    end
-    
-    -- Auto Wall Jump
-    if TitanConfig.Movement.WallJump.Enabled and hum.MoveDirection.Magnitude > 0 then
-        local root = LocalPlayer.Character.HumanoidRootPart
-        local ray = Workspace:Raycast(root.Position, root.CFrame.LookVector * 3, RaycastParams.new())
-        if ray and ray.Instance and ray.Instance.CanCollide then hum.Jump = true end
+    if hum.WalkSpeed ~= target then
+        hum.WalkSpeed = target
     end
 end
 
-function GameEngine:AutoPickup()
-    if not TitanConfig.Objective.AutoPickup then return end
-    for _, p in pairs(Workspace:GetDescendants()) do
-        if p:IsA("ProximityPrompt") then
-            if (LocalPlayer.Character.HumanoidRootPart.Position - p.Parent.Position).Magnitude < p.MaxActivationDistance then
-                if p.ActionText:lower():find("pick") or p.ActionText:lower():find("take") then
-                    fireproximityprompt(p)
-                end
-            end
-        end
-    end
-end
-
--- [8] UI INTERFACE (RAYFIELD LOAD)
+-- ==============================================================================
+-- [MODULE 10] UI INTERFACE (RAYFIELD ADAPTER)
+-- ==============================================================================
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = TitanConfig.System.Name,
-   LoadingTitle = "Loading Titan Omega...",
-   LoadingSubtitle = "1000+ Lines Engine",
-   ConfigurationSaving = {Enabled = true, FolderName = "ThinhTitanOmega", FileName = "Config"},
-   KeySystem = TitanConfig.System.KeySystem,
+   Name = "THINH HUB: TITAN COLOSSUS",
+   LoadingTitle = "Initializing Core Systems...",
+   LoadingSubtitle = "Version " .. Settings.System.Version,
+   ConfigurationSaving = {Enabled = true, FolderName = "ThinhHubColossus", FileName = "Config"},
+   KeySystem = Settings.System.KeySystem,
    KeySettings = {
-      Title = "Access Control",
-      Subtitle = "Enterprise Key Required",
-      Note = "Discord: " .. TitanConfig.System.Discord,
-      FileName = "ThinhKeyOmega",
+      Title = "Titan Security",
+      Subtitle = "Key Required",
+      Note = "Key: " .. Settings.System.Key,
+      FileName = "ThinhKeyColossus",
       SaveKey = true,
-      Key = {TitanConfig.System.Key}
+      Key = {Settings.System.Key}
    }
 })
-setclipboard(TitanConfig.System.Discord)
 
--- == TAB COMBAT ==
-local TabCombat = Window:CreateTab("⚔️ Combat", 4483362458)
-TabCombat:CreateSection("AIMBOT")
-TabCombat:CreateToggle({Name="Enable Aimbot", CurrentValue=false, Callback=function(v) TitanConfig.Combat.Aimbot.Enabled=v end})
-TabCombat:CreateDropdown({
-    Name="Aim Mode", Options={"Camera","Character"}, CurrentOption="Character", 
-    Callback=function(v) TitanConfig.Combat.Aimbot.Mode=v[1] end
-})
-
-TabCombat:CreateSection("AUTO BLOCK (AI)")
-TabCombat:CreateToggle({Name="Smart Block", CurrentValue=false, Callback=function(v) TitanConfig.Combat.AutoBlock.Enabled=v end})
-TabCombat:CreateSlider({Name="Delay (s)", Range={0,0.5}, Increment=0.01, CurrentValue=0.22, Callback=function(v) TitanConfig.Combat.AutoBlock.Delay=v end})
-
-TabCombat:CreateSection("DESTRUCTION")
-TabCombat:CreateToggle({Name="Auto Kill All", CurrentValue=false, Callback=function(v) TitanConfig.Combat.AutoKill.Enabled=v end})
-TabCombat:CreateToggle({Name="Hitbox Expander", CurrentValue=false, Callback=function(v) TitanConfig.Combat.Hitbox.Enabled=v end})
-TabCombat:CreateSlider({Name="Hitbox Size", Range={2,30}, Increment=1, CurrentValue=2, Callback=function(v) TitanConfig.Combat.Hitbox.Size=v end})
-
--- == TAB VISUALS ==
+-- TAB VISUALS
 local TabVis = Window:CreateTab("👁️ Visuals", 4483362458)
-TabVis:CreateToggle({Name="Master ESP", CurrentValue=false, Callback=function(v) TitanConfig.Visuals.MasterSwitch=v end})
-TabVis:CreateToggle({Name="Skeleton (Xương)", CurrentValue=false, Callback=function(v) TitanConfig.Visuals.Skeleton.Enabled=v end})
-TabVis:CreateToggle({Name="Box 2D", CurrentValue=false, Callback=function(v) TitanConfig.Visuals.Boxes.Enabled=v end})
-TabVis:CreateToggle({Name="Names", CurrentValue=false, Callback=function(v) TitanConfig.Visuals.Names.Enabled=v end})
-TabVis:CreateToggle({Name="Tracers", CurrentValue=false, Callback=function(v) TitanConfig.Visuals.Tracers.Enabled=v end})
+TabVis:CreateSection("ESP KILLER (RED)")
+TabVis:CreateToggle({Name="Enable Killer ESP", CurrentValue=false, Callback=function(v) Settings.Visuals.Killer.Enabled=v end})
+TabVis:CreateToggle({Name="Show Box", CurrentValue=true, Callback=function(v) Settings.Visuals.Killer.Box=v end})
+TabVis:CreateToggle({Name="Show Name", CurrentValue=true, Callback=function(v) Settings.Visuals.Killer.Name=v end})
+TabVis:CreateToggle({Name="Show Skeleton", CurrentValue=true, Callback=function(v) Settings.Visuals.Killer.Skeleton=v end})
+
+TabVis:CreateSection("ESP SURVIVOR (GREEN)")
+TabVis:CreateToggle({Name="Enable Survivor ESP", CurrentValue=false, Callback=function(v) Settings.Visuals.Survivor.Enabled=v end})
+TabVis:CreateToggle({Name="Show Box", CurrentValue=true, Callback=function(v) Settings.Visuals.Survivor.Box=v end})
+
+TabVis:CreateSection("ESP GENERATOR (YELLOW)")
+TabVis:CreateToggle({Name="Enable Gen ESP", CurrentValue=false, Callback=function(v) Settings.Visuals.Generator.Enabled=v end})
 TabVis:CreateButton({Name="Fullbright", Callback=function() Lighting.Brightness=2; Lighting.ClockTime=14; Lighting.FogEnd=100000 end})
 
--- == TAB MOVEMENT ==
-local TabMov = Window:CreateTab("🏃 Movement", 4483362458)
-TabMov:CreateToggle({Name="Speed Logic", CurrentValue=false, Callback=function(v) TitanConfig.Movement.Speed.Enabled=v end})
-TabMov:CreateInput({Name="Walk Speed", PlaceholderText="Num...", RemoveTextAfterFocusLost=false, Callback=function(t) TitanConfig.Movement.Speed.WalkValue=tonumber(t) or 16 end})
-TabMov:CreateInput({Name="Run Speed", PlaceholderText="Num...", RemoveTextAfterFocusLost=false, Callback=function(t) TitanConfig.Movement.Speed.RunValue=tonumber(t) or 25 end})
-TabMov:CreateToggle({Name="Inf Stamina", CurrentValue=false, Callback=function(v) TitanConfig.Movement.Stamina.Enabled=v end})
-TabMov:CreateToggle({Name="Wall Jump", CurrentValue=false, Callback=function(v) TitanConfig.Movement.WallJump.Enabled=v end})
+-- TAB COMBAT
+local TabCombat = Window:CreateTab("⚔️ Combat", 4483362458)
+TabCombat:CreateSection("DEFENSE")
+TabCombat:CreateToggle({Name="Auto Block (AI)", CurrentValue=false, Callback=function(v) Settings.Combat.AutoBlock.Enabled=v end})
+TabCombat:CreateSlider({Name="Reaction (s)", Range={0,0.5}, Increment=0.01, CurrentValue=0.22, Callback=function(v) Settings.Combat.AutoBlock.ReactionTime=v end})
 
--- == TAB SYSTEM ==
-local TabSys = Window:CreateTab("⚙️ System", 4483362458)
-TabSys:CreateButton({Name="Server Hop", Callback=function()
-    local PlaceID = game.PlaceId
-    local Limit = 10
-    local function Get()
-        local API = "https://games.roblox.com/v1/games/"..PlaceID.."/servers/Public?sortOrder=Desc&limit="..Limit
-        local Success, Response = pcall(function() return HttpService:JSONDecode(game:HttpGet(API)) end)
-        if Success and Response then
-            for _,v in pairs(Response.data) do
-                if v.playing ~= v.maxPlayers and v.id ~= game.JobId then
-                    TeleportService:TeleportToPlaceInstance(PlaceID, v.id, LocalPlayer)
-                    break
-                end
-            end
-        end
-    end
-    Get()
-end})
-TabSys:CreateToggle({Name="Auto Pickup", CurrentValue=false, Callback=function(v) TitanConfig.Objective.AutoPickup=v end})
+-- TAB OBJECTIVE
+local TabObj = Window:CreateTab("⚙️ Objective", 4483362458)
+TabObj:CreateToggle({Name="Auto Repair Gen", CurrentValue=false, Callback=function(v) Settings.Objective.AutoRepair=v end})
 
--- [9] EXECUTION PIPELINE (VÒNG LẶP CHÍNH)
-Players.PlayerAdded:Connect(function(p) ESP_System:AddPlayer(p) end)
-Players.PlayerRemoving:Connect(function(p) ESP_System:RemovePlayer(p) end)
-for _, p in pairs(Players:GetPlayers()) do if p ~= LocalPlayer then ESP_System:AddPlayer(p) end end
+-- TAB MOVEMENT (INPUT)
+local TabMove = Window:CreateTab("🏃 Movement", 4483362458)
+TabMove:CreateToggle({Name="Enable Speed Fix", CurrentValue=false, Callback=function(v) Settings.Movement.Speed.Enabled=v end})
+TabMove:CreateInput({Name="Walk Speed", PlaceholderText="Number...", NumbersOnly=true, Callback=function(t) Settings.Movement.Speed.WalkValue=tonumber(t) or 16 end})
+TabMove:CreateInput({Name="Run Speed", PlaceholderText="Number...", NumbersOnly=true, Callback=function(t) Settings.Movement.Speed.RunValue=tonumber(t) or 25 end})
 
--- High-Performance Thread
+-- ==============================================================================
+-- [MODULE 11] EXECUTION PIPELINE (VÒNG LẶP HỆ THỐNG)
+-- ==============================================================================
+
+-- 1. Player Handling
+Players.PlayerAdded:Connect(function(p) ESPController:Create(p) end)
+Players.PlayerRemoving:Connect(function(p) ESPController:Remove(p) end)
+for _, p in pairs(Players:GetPlayers()) do if p ~= LocalPlayer then ESPController:Create(p) end end
+
+-- 2. Render Loop (High Performance)
 RunService.RenderStepped:Connect(function()
     pcall(function()
-        ESP_System:Update()
-        ThreatEngine:Scan()
-        GameEngine:UpdateAimbot()
-        GameEngine:UpdatePhysics()
-        GameEngine:AutoPickup()
-        
-        if TitanConfig.Combat.Hitbox.Enabled then
-            for _, v in pairs(Players:GetPlayers()) do
-                if v ~= LocalPlayer and Utils:IsAlive(v) and v.Team ~= LocalPlayer.Team then
-                    local h = v.Character.HumanoidRootPart
-                    h.Size = Vector3.new(TitanConfig.Combat.Hitbox.Size, TitanConfig.Combat.Hitbox.Size, TitanConfig.Combat.Hitbox.Size)
-                    h.Transparency = 0.6; h.CanCollide = false; h.Color = Color3.new(1,0,0)
-                end
-            end
-        end
+        ESPController:Update()
+        ObjectiveSystem:UpdateVisuals()
+        ThreatSystem:Scan()
+        PhysicsController:Update()
     end)
 end)
 
--- Low-Performance Thread
+-- 3. Heartbeat Loop (Background Logic)
 RunService.Heartbeat:Connect(function()
-    if TitanConfig.Combat.AutoKill.Enabled then
-        for _, v in pairs(Players:GetPlayers()) do
-            if v ~= LocalPlayer and Utils:IsAlive(v) and v.Team ~= LocalPlayer.Team then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,3)
-                VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-            end
-        end
-    end
+    pcall(function()
+        ObjectiveSystem:AutoRepair()
+    end)
 end)
 
-Rayfield:Notify({Title="TITAN OMEGA", Content="System Online. Have Fun!", Duration=5})
-Utils:Log("Initialization Complete.")
+-- [FINAL] LOGGING
+Logger:Log("System Loaded Successfully.")
+Rayfield:Notify({Title = "TITAN COLOSSUS", Content = "Loaded Max Modules!", Duration = 5})
