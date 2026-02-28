@@ -1,553 +1,264 @@
---[[
-    THINH HUB V112 - IMPROVED & KEY SYSTEM
-    Author: Thinh (Original) - Improved by Grok
-    Key: THINH? | Discord: https://discord.gg/fzGMwWMbq
-]]
-
+-- 1. CHỜ GAME TẢI
 if not game:IsLoaded() then game.Loaded:Wait() end
 
--- Services
-local Players           = game:GetService("Players")
-local RunService        = game:GetService("RunService")
-local UserInputService  = game:GetService("UserInputService")
-local TweenService      = game:GetService("TweenService")
-local StarterGui        = game:GetService("StarterGui")
-local Lighting          = game:GetService("Lighting")
-local Workspace         = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TextChatService   = game:GetService("TextChatService")
-local Camera            = Workspace.CurrentCamera
+local TextChatService = game:GetService("TextChatService")
+local StarterGui = game:GetService("StarterGui")
+local MarketplaceService = game:GetService("MarketplaceService")
+local Workspace = game:GetService("Workspace")
 
-local pl                = Players.LocalPlayer
-local mouse             = pl:GetMouse()
+local pl = Players.LocalPlayer
+local DISCORD_LINK = "https://discord.gg/fzGMwWMbq"
 
-local DISCORD           = "https://discord.gg/fzGMwWMbq"
+-- LẤY TÊN GAME
+local gameName = "Loading..."
+task.spawn(function() pcall(function() gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name end) end)
 
--- Config
-local Config = {
-    Key = "THINH?",
-    Theme = { Main = Color3.fromRGB(0, 255, 230), Bg = Color3.fromRGB(20, 20, 30), Accent = Color3.fromRGB(40, 40, 50) },
-    Values = { Speed = 100, Jump = 100, FlySpeed = 100, AimbotFOV = 150, AimbotSmooth = 0.15 },
-    Toggles = {
-        Speed = false, Jump = false, Fly = false, NoClip = false, InfiniteJump = false,
-        GodMode = false, Fullbright = false, ClickTP = false,
-        Aimbot = false, FOVCircle = false, ESP = false,
-        ChatSpam = false, KillAura = false
-    },
-    ChatSpamMsg = "THINH HUB ON TOP 💀"
+-- BẢO MẬT KEY (THINH?)
+local HIDDEN_HASH = "84|72|73|78|72|63"
+local function CheckPass(str)
+    local code = ""
+    for i = 1, #str do code = code .. string.byte(str, i, i) .. "|" end
+    return code:sub(1, -2) == HIDDEN_HASH
+end
+
+-- THEME
+local THEMES = {
+    CYAN = {Name="Xanh Neon", Main=Color3.fromRGB(0,255,230), Bg=Color3.fromRGB(15,20,25)},
+    RED = {Name="Đỏ Huyết", Main=Color3.fromRGB(255,50,50), Bg=Color3.fromRGB(25,10,10)},
+    GREEN = {Name="Xanh Lá", Main=Color3.fromRGB(0,255,0), Bg=Color3.fromRGB(10,25,10)},
+    PURPLE = {Name="Tím Mộng", Main=Color3.fromRGB(170,0,255), Bg=Color3.fromRGB(25,10,35)},
+    ORANGE = {Name="Cam Cháy", Main=Color3.fromRGB(255,120,0), Bg=Color3.fromRGB(30,15,5)},
+    PINK = {Name="Hồng Phấn", Main=Color3.fromRGB(255,100,180), Bg=Color3.fromRGB(30,10,20)},
+    BLUE = {Name="Xanh Biển", Main=Color3.fromRGB(0,120,255), Bg=Color3.fromRGB(10,15,30)},
+    WHITE = {Name="Bạch Kim", Main=Color3.fromRGB(255,255,255), Bg=Color3.fromRGB(30,30,30)},
+    YELLOW = {Name="Vàng Chanh", Main=Color3.fromRGB(255,255,0), Bg=Color3.fromRGB(25,25,5)}
 }
+local currentTheme = THEMES.CYAN
+local isRainbow = false
 
--- Clean old GUI
-for _,v in pairs(game.CoreGui:GetChildren()) do
-    if v.Name:match("ThinhHub") then v:Destroy() end
+-- 2. XÓA GUI CŨ
+for _, v in pairs(pl.PlayerGui:GetChildren()) do
+    if v.Name == "ThinhDeity_V85" then v:Destroy() end
 end
 
--- GUI Creation
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ThinhHub_V112_Improved"
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ResetOnSpawn = false
+local gui = Instance.new("ScreenGui")
+gui.Name = "ThinhDeity_V85"
+gui.Parent = pl.PlayerGui
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 9999
 
--- KEY SYSTEM FRAME (Màn hình nhập key đầy đủ như yêu cầu)
-local KeyFrame = Instance.new("Frame", ScreenGui)
-KeyFrame.Size = UDim2.new(0, 400, 0, 280)
-KeyFrame.Position = UDim2.new(0.5, -200, 0.5, -140)
-KeyFrame.BackgroundColor3 = Config.Theme.Bg
-KeyFrame.BorderSizePixel = 0
-Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
+-- ==========================================
+-- PHẦN 1: KEY SYSTEM
+-- ==========================================
+local keyFrame = Instance.new("Frame", gui)
+keyFrame.Size = UDim2.new(0, 400, 0, 240); keyFrame.Position = UDim2.new(0.5, 0, 0.5, 0); keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20); keyFrame.Visible = true; keyFrame.Active = true; keyFrame.Draggable = true
+Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", keyFrame).Color = Color3.fromRGB(255, 255, 0); Instance.new("UIStroke", keyFrame).Thickness = 2
 
-local KeyStroke = Instance.new("UIStroke", KeyFrame)
-KeyStroke.Color = Config.Theme.Main
-KeyStroke.Thickness = 3
+local kTitle = Instance.new("TextLabel", keyFrame)
+kTitle.Text = "THINH DEITY SECURITY"; kTitle.Size = UDim2.new(1, 0, 0, 40); kTitle.TextColor3 = Color3.fromRGB(255, 255, 0); kTitle.Font = Enum.Font.GothamBold; kTitle.TextSize = 18; kTitle.BackgroundTransparency = 1
 
--- Drag for KeyFrame
-local function MakeDraggable(frame)
-    local dragging, dragStart, startPos
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
-            end)
-        end
-    end)
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-end
-MakeDraggable(KeyFrame)
+local kInput = Instance.new("TextBox", keyFrame)
+kInput.Size = UDim2.new(0.7, 0, 0.18, 0); kInput.Position = UDim2.new(0.1, 0, 0.25, 0)
+kInput.BackgroundColor3 = Color3.fromRGB(40, 40, 50); kInput.TextColor3 = Color3.new(1,1,1); kInput.Text = ""; kInput.PlaceholderText = "Nhập Key..."
+Instance.new("UICorner", kInput)
 
-local KeyTitle = Instance.new("TextLabel", KeyFrame)
-KeyTitle.Text = "THINH HUB SECURITY"
-KeyTitle.Size = UDim2.new(1, 0, 0, 50)
-KeyTitle.TextColor3 = Config.Theme.Main
-KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.TextSize = 20
-KeyTitle.BackgroundTransparency = 1
-
-local KeyInput = Instance.new("TextBox", KeyFrame)
-KeyInput.Size = UDim2.new(0.85, 0, 0, 45)
-KeyInput.Position = UDim2.new(0.075, 0, 0.25, 0)
-KeyInput.BackgroundColor3 = Config.Theme.Accent
-KeyInput.TextColor3 = Color3.new(1, 1, 1)
-KeyInput.PlaceholderText = "Enter Key: THINH?"
-KeyInput.Text = ""
-KeyInput.Font = Enum.Font.GothamBold
-KeyInput.TextSize = 14
-Instance.new("UICorner", KeyInput).CornerRadius = UDim.new(0, 8)
-
-local DiscordBtn = Instance.new("TextButton", KeyFrame)
-DiscordBtn.Size = UDim2.new(0.85, 0, 0, 40)
-DiscordBtn.Position = UDim2.new(0.075, 0, 0.48, 0)
-DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-DiscordBtn.Text = "COPY DISCORD"
-DiscordBtn.TextColor3 = Color3.new(1, 1, 1)
-DiscordBtn.Font = Enum.Font.GothamBold
-DiscordBtn.TextSize = 13
-Instance.new("UICorner", DiscordBtn).CornerRadius = UDim.new(0, 8)
-DiscordBtn.MouseButton1Click:Connect(function()
-    setclipboard(DISCORD)
-    DiscordBtn.Text = "COPIED!"
-    task.wait(1.5)
-    DiscordBtn.Text = "COPY DISCORD"
+local actualKey, isTyping, isHidden = "", false, true
+local hideBtn = Instance.new("TextButton", keyFrame); hideBtn.Size = UDim2.new(0.1, 0, 0.18, 0); hideBtn.Position = UDim2.new(0.82, 0, 0.25, 0); hideBtn.BackgroundColor3 = Color3.fromRGB(60,60,70); hideBtn.Text = "👁️"; Instance.new("UICorner", hideBtn)
+kInput:GetPropertyChangedSignal("Text"):Connect(function()
+    if isTyping then return end; isTyping = true
+    if isHidden then
+        local newT = kInput.Text
+        if #newT > #actualKey then actualKey = actualKey..newT:sub(#actualKey+1) elseif #newT < #actualKey then actualKey = actualKey:sub(1, #newT) end
+        kInput.Text = string.rep("*", #actualKey)
+    else actualKey = kInput.Text end; isTyping = false
 end)
+hideBtn.MouseButton1Click:Connect(function() isHidden = not isHidden; isTyping=true; kInput.Text = isHidden and string.rep("*",#actualKey) or actualKey; isTyping=false end)
 
-local CheckBtn = Instance.new("TextButton", KeyFrame)
-CheckBtn.Size = UDim2.new(0.6, 0, 0, 50)
-CheckBtn.Position = UDim2.new(0.2, 0, 0.7, 0)
-CheckBtn.BackgroundColor3 = Config.Theme.Main
-CheckBtn.Text = "CHECK KEY"
-CheckBtn.TextColor3 = Color3.new(0, 0, 0)
-CheckBtn.Font = Enum.Font.GothamBold
-CheckBtn.TextSize = 15
-Instance.new("UICorner", CheckBtn).CornerRadius = UDim.new(0, 10)
+local discordBtn = Instance.new("TextButton", keyFrame)
+discordBtn.Size = UDim2.new(0.8, 0, 0.15, 0); discordBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
+discordBtn.Text = "LẤY KEY (COPY DISCORD)"; discordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242); discordBtn.TextColor3 = Color3.new(1,1,1); discordBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", discordBtn)
+discordBtn.MouseButton1Click:Connect(function() setclipboard(DISCORD_LINK); discordBtn.Text = "ĐÃ COPY LINK!"; task.wait(1); discordBtn.Text = "LẤY KEY (COPY DISCORD)" end)
 
--- MAIN MENU (Ẩn ban đầu)
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 550, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -275, 0.5, -200)
-MainFrame.BackgroundColor3 = Config.Theme.Bg
-MainFrame.Visible = false
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
-local MainStroke = Instance.new("UIStroke", MainFrame); MainStroke.Color = Config.Theme.Main; MainStroke.Thickness = 3
-MakeDraggable(MainFrame)
+local kBtn = Instance.new("TextButton", keyFrame)
+kBtn.Size = UDim2.new(0.4, 0, 0.2, 0); kBtn.Position = UDim2.new(0.3, 0, 0.75, 0)
+kBtn.Text = "CHECK KEY"; kBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0); kBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", kBtn)
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1,0,0,50)
-Title.BackgroundTransparency = 1
-Title.Text = "THINH HUB V112 - IMPROVED"
-Title.TextColor3 = Config.Theme.Main
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 22
+-- ==========================================
+-- PHẦN 2: MAIN MENU & FEATURES
+-- ==========================================
+local function LoadMainMenu()
+    keyFrame:Destroy()
+    StarterGui:SetCore("SendNotification", {Title = "V85 HITBOX", Text = "Đã thêm Hitbox Expander!", Duration = 5})
 
--- Tab System (giữ nguyên từ improved)
-local TabContainer = Instance.new("Frame", MainFrame)
-TabContainer.Size = UDim2.new(0.2,0,0.85,0)
-TabContainer.Position = UDim2.new(0,0,0.13,0)
-TabContainer.BackgroundTransparency = 1
+    local config = { 
+        speed=false, jump=false, noclip=false, magnet=false, 
+        kill=false, esp=false, god=false, invis=false, 
+        spam=false, killaura=false, spasm=false, hitbox=false 
+    }
+    local customSpeed, customJump, customHitbox, spamContent = 75, 50, 10, "THINH DEITY ON TOP"
 
-local ContentFrame = Instance.new("ScrollingFrame", MainFrame)
-ContentFrame.Size = UDim2.new(0.78,0,0.85,0)
-ContentFrame.Position = UDim2.new(0.22,0,0.13,0)
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.ScrollBarThickness = 4
-ContentFrame.CanvasSize = UDim2.new(0,0,0,0)
-ContentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-
-local Tabs = {}
-local function CreateTab(name)
-    local TabBtn = Instance.new("TextButton", TabContainer)
-    TabBtn.Size = UDim2.new(1,-10,0,40)
-    TabBtn.BackgroundColor3 = Config.Theme.Accent
-    TabBtn.Text = name
-    TabBtn.TextColor3 = Color3.new(1,1,1)
-    TabBtn.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", TabBtn)
+    -- UI CHÍNH
+    local menu = Instance.new("Frame", gui); menu.Size = UDim2.new(0, 480, 0, 320); menu.Position = UDim2.new(0.5, -240, 0.5, -160); menu.BackgroundColor3 = currentTheme.Bg
+    menu.Visible = true; menu.Active = true; menu.Draggable = true; menu.ZIndex = 1; Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 10)
+    local mStroke = Instance.new("UIStroke", menu); mStroke.Color = currentTheme.Main; mStroke.Thickness = 2
+    local title = Instance.new("TextLabel", menu); title.Text = "THINH DEITY V85"; title.Size = UDim2.new(0.7, 0, 0, 30); title.Position = UDim2.new(0, 15, 0, 5); title.TextColor3 = currentTheme.Main; title.Font = Enum.Font.GothamBold; title.TextSize = 16; title.BackgroundTransparency = 1; title.TextXAlignment = Enum.TextXAlignment.Left
     
-    local Content = Instance.new("Frame", ContentFrame)
-    Content.Size = UDim2.new(1,0,0,0)
-    Content.BackgroundTransparency = 1
-    Content.Visible = false
-    
-    local Layout = Instance.new("UIListLayout", Content)
-    Layout.Padding = UDim.new(0,8)
-    Layout.SortOrder = Enum.SortOrder.LayoutOrder
-    
-    TabBtn.MouseButton1Click:Connect(function()
-        for _,v in pairs(ContentFrame:GetChildren()) do 
-            if v:IsA("Frame") then v.Visible = false end 
-        end
-        Content.Visible = true
-    end)
-    
-    Tabs[name] = Content
-    return Content
-end
+    -- INFO BAR
+    local infoLabel = Instance.new("TextLabel", menu); infoLabel.Size = UDim2.new(0.9, 0, 0, 30); infoLabel.Position = UDim2.new(0.03, 0, 0.88, 0); infoLabel.BackgroundTransparency = 1; infoLabel.TextColor3 = Color3.fromRGB(180, 180, 180); infoLabel.Font = Enum.Font.Code; infoLabel.TextSize = 10; infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+    RunService.RenderStepped:Connect(function() local fps = math.floor(1 / RunService.RenderStepped:Wait()); infoLabel.Text = string.format("👤 USER: %s | 🎮 GAME: %s | 📊 FPS: %d", pl.Name, gameName, fps) end)
 
--- Toggle & Slider functions (giữ nguyên)
-local function AddToggle(parent, text, toggleKey)
-    local Frame = Instance.new("Frame", parent)
-    Frame.Size = UDim2.new(1,0,0,40)
-    Frame.BackgroundColor3 = Config.Theme.Accent
-    Instance.new("UICorner", Frame)
-    
-    local Label = Instance.new("TextLabel", Frame)
-    Label.Size = UDim2.new(0.7,0,1,0)
-    Label.BackgroundTransparency = 1
-    Label.Text = "  " .. text
-    Label.TextColor3 = Color3.new(1,1,1)
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Font = Enum.Font.Gotham
-    
-    local Toggle = Instance.new("TextButton", Frame)
-    Toggle.Size = UDim2.new(0,60,0,30)
-    Toggle.Position = UDim2.new(1,-70,0.5,-15)
-    Toggle.BackgroundColor3 = Color3.fromRGB(200,50,50)
-    Toggle.Text = "OFF"
-    Toggle.TextColor3 = Color3.new(1,1,1)
-    Instance.new("UICorner", Toggle).CornerRadius = UDim.new(0,8)
-    
-    Toggle.MouseButton1Click:Connect(function()
-        Config.Toggles[toggleKey] = not Config.Toggles[toggleKey]
-        Toggle.BackgroundColor3 = Config.Toggles[toggleKey] and Config.Theme.Main or Color3.fromRGB(200,50,50)
-        Toggle.Text = Config.Toggles[toggleKey] and "ON" or "OFF"
-        Toggle.TextColor3 = Config.Toggles[toggleKey] and Color3.new(0,0,0) or Color3.new(1,1,1)
-    end)
-end
+    local settingsBtn = Instance.new("TextButton", menu); settingsBtn.Size = UDim2.new(0, 80, 0, 30); settingsBtn.Position = UDim2.new(0.8, 0, 0.02, 0); settingsBtn.Text = "⚙️ CÀI ĐẶT"; settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,50); settingsBtn.TextColor3 = currentTheme.Main; settingsBtn.Font = Enum.Font.GothamBold; settingsBtn.TextSize = 10; Instance.new("UICorner", settingsBtn)
 
-local function AddSlider(parent, text, valueKey, min, max, default)
-    local Frame = Instance.new("Frame", parent)
-    Frame.Size = UDim2.new(1,0,0,60)
-    Frame.BackgroundColor3 = Config.Theme.Accent
-    Instance.new("UICorner", Frame)
-    
-    local Label = Instance.new("TextLabel", Frame)
-    Label.Size = UDim2.new(1,0,0,25)
-    Label.BackgroundTransparency = 1
-    Label.Text = "  " .. text .. ": " .. default
-    Label.TextColor3 = Color3.new(1,1,1)
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local Slider = Instance.new("TextButton", Frame)
-    Slider.Size = UDim2.new(0.9,0,0,15)
-    Slider.Position = UDim2.new(0.05,0,0.6,0)
-    Slider.BackgroundColor3 = Color3.fromRGB(60,60,60)
-    Instance.new("UICorner", Slider)
-    
-    local Fill = Instance.new("Frame", Slider)
-    Fill.Size = UDim2.new((default-min)/(max-min),0,1,0)
-    Fill.BackgroundColor3 = Config.Theme.Main
-    Instance.new("UICorner", Fill)
-    
-    local draggingSlider = false
-    Slider.MouseButton1Down:Connect(function() draggingSlider = true end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then draggingSlider = false end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local mouseX = input.Position.X
-            local sliderX = Slider.AbsolutePosition.X
-            local percent = math.clamp((mouseX - sliderX)/Slider.AbsoluteSize.X, 0, 1)
-            Config.Values[valueKey] = math.floor(min + (max - min) * percent)
-            Fill.Size = UDim2.new(percent,0,1,0)
-            Label.Text = "  " .. text .. ": " .. Config.Values[valueKey]
-        end
-    end)
-end
+    -- [POPUP: HITBOX] (MỚI)
+    local hbFrame = Instance.new("Frame", gui); hbFrame.Visible=false; hbFrame.Size=UDim2.new(0,250,0,150); hbFrame.Position=UDim2.new(0.5,0,0.4,0); hbFrame.AnchorPoint=Vector2.new(0.5,0.5); hbFrame.BackgroundColor3=Color3.fromRGB(25,25,30); hbFrame.ZIndex=200; Instance.new("UICorner", hbFrame); local hbStroke = Instance.new("UIStroke", hbFrame); hbStroke.Color=Color3.new(1,1,1)
+    local hbTitle = Instance.new("TextLabel", hbFrame); hbTitle.Text="CỠ HITBOX (SIZE)"; hbTitle.Size=UDim2.new(1,0,0,30); hbTitle.TextColor3=Color3.new(1,1,1); hbTitle.BackgroundTransparency=1; hbTitle.ZIndex=201
+    local hbInput = Instance.new("TextBox", hbFrame); hbInput.Size=UDim2.new(0.8,0,0.3,0); hbInput.Position=UDim2.new(0.1,0,0.25,0); hbInput.Text=tostring(customHitbox); hbInput.ZIndex=201; Instance.new("UICorner", hbInput)
+    local hbApply = Instance.new("TextButton", hbFrame); hbApply.Size=UDim2.new(0.4,0,0.25,0); hbApply.Position=UDim2.new(0.3,0,0.65,0); hbApply.Text="OK"; hbApply.BackgroundColor3=Color3.new(0,1,0); hbApply.ZIndex=201; Instance.new("UICorner", hbApply)
+    hbApply.MouseButton1Click:Connect(function() customHitbox = tonumber(hbInput.Text) or 10; config.hitbox = true; hbFrame.Visible = false end)
 
--- Create Tabs & Add Controls (thêm Katana từ bản gốc)
-local CombatTab = CreateTab("Combat")
-local MovementTab = CreateTab("Movement")
-local VisualTab = CreateTab("Visual")
-local MiscTab = CreateTab("Misc")
+    -- [POPUP: SPEED & JUMP]
+    local speedFrame = Instance.new("Frame", gui); speedFrame.Visible=false; speedFrame.Size=UDim2.new(0,250,0,150); speedFrame.Position=UDim2.new(0.5,0,0.4,0); speedFrame.AnchorPoint=Vector2.new(0.5,0.5); speedFrame.BackgroundColor3=Color3.fromRGB(25,25,30); speedFrame.ZIndex=200; Instance.new("UICorner", speedFrame); local spStroke = Instance.new("UIStroke", speedFrame); spStroke.Color=Color3.new(1,1,1)
+    local spInput = Instance.new("TextBox", speedFrame); spInput.Size=UDim2.new(0.8,0,0.3,0); spInput.Position=UDim2.new(0.1,0,0.2,0); spInput.Text=tostring(customSpeed); spInput.ZIndex=201; Instance.new("UICorner", spInput)
+    local spApply = Instance.new("TextButton", speedFrame); spApply.Size=UDim2.new(0.4,0,0.25,0); spApply.Position=UDim2.new(0.3,0,0.6,0); spApply.Text="OK"; spApply.BackgroundColor3=Color3.new(0,1,0); spApply.ZIndex=201; Instance.new("UICorner", spApply)
+    spApply.MouseButton1Click:Connect(function() customSpeed = tonumber(spInput.Text) or 75; config.speed = true; speedFrame.Visible = false end)
 
--- Combat
-AddToggle(CombatTab, "🗡️ Kill Aura", "KillAura")
-AddToggle(CombatTab, "🎯 Aimbot", "Aimbot")
-AddToggle(CombatTab, "🔴 FOV Circle", "FOVCircle")
-AddSlider(CombatTab, "Aimbot FOV", "AimbotFOV", 50, 400, 150)
-AddSlider(CombatTab, "Aimbot Smoothness", "AimbotSmooth", 0.05, 0.5, 0.15)
+    local jumpFrame = Instance.new("Frame", gui); jumpFrame.Visible=false; jumpFrame.Size=UDim2.new(0,250,0,150); jumpFrame.Position=UDim2.new(0.5,0,0.4,0); jumpFrame.AnchorPoint=Vector2.new(0.5,0.5); jumpFrame.BackgroundColor3=Color3.fromRGB(25,25,30); jumpFrame.ZIndex=200; Instance.new("UICorner", jumpFrame); local jpStroke = Instance.new("UIStroke", jumpFrame); jpStroke.Color=Color3.new(1,1,1)
+    local jpTitle = Instance.new("TextLabel", jumpFrame); jpTitle.Text="ĐỘ CAO NHẢY"; jpTitle.Size=UDim2.new(1,0,0,30); jpTitle.TextColor3=Color3.new(1,1,1); jpTitle.BackgroundTransparency=1; jpTitle.ZIndex=201
+    local jpInput = Instance.new("TextBox", jumpFrame); jpInput.Size=UDim2.new(0.8,0,0.3,0); jpInput.Position=UDim2.new(0.1,0,0.25,0); jpInput.Text=tostring(customJump); jpInput.ZIndex=201; Instance.new("UICorner", jpInput)
+    local jpApply = Instance.new("TextButton", jumpFrame); jpApply.Size=UDim2.new(0.4,0,0.25,0); jpApply.Position=UDim2.new(0.3,0,0.65,0); jpApply.Text="OK"; jpApply.BackgroundColor3=Color3.new(0,1,0); jpApply.ZIndex=201; Instance.new("UICorner", jpApply)
+    jpApply.MouseButton1Click:Connect(function() customJump = tonumber(jpInput.Text) or 50; config.jump = true; jumpFrame.Visible = false end)
 
--- Movement
-AddToggle(MovementTab, "⚡ Speed Hack", "Speed")
-AddToggle(MovementTab, "🦘 High Jump", "Jump")
-AddToggle(MovementTab, "✈️ Fly", "Fly")
-AddToggle(MovementTab, "👻 NoClip", "NoClip")
-AddToggle(MovementTab, "∞ Infinite Jump", "InfiniteJump")
-AddToggle(MovementTab, "🖱️ Click Teleport", "ClickTP")
-AddSlider(MovementTab, "Speed Value", "Speed", 50, 300, 100)
-AddSlider(MovementTab, "Jump Power", "Jump", 50, 200, 100)
-AddSlider(MovementTab, "Fly Speed", "FlySpeed", 50, 200, 100)
+    -- [POPUP SPAM & TP & VIEW]
+    local spamFrame = Instance.new("Frame", gui); spamFrame.Visible=false; spamFrame.Size=UDim2.new(0,300,0,180); spamFrame.Position=UDim2.new(0.5,0,0.4,0); spamFrame.AnchorPoint=Vector2.new(0.5,0.5); spamFrame.BackgroundColor3=Color3.fromRGB(25,25,30); spamFrame.ZIndex=200; Instance.new("UICorner", spamFrame); local smStroke = Instance.new("UIStroke", spamFrame); smStroke.Color=Color3.new(1,1,0)
+    local smInput = Instance.new("TextBox", spamFrame); smInput.Size=UDim2.new(0.9,0,0.3,0); smInput.Position=UDim2.new(0.05,0,0.15,0); smInput.Text=""; smInput.PlaceholderText="Nhập tin..."; smInput.ZIndex=201; Instance.new("UICorner", smInput)
+    local smStart = Instance.new("TextButton", spamFrame); smStart.Size=UDim2.new(0.4,0,0.25,0); smStart.Position=UDim2.new(0.05,0,0.6,0); smStart.Text="BẮT ĐẦU"; smStart.BackgroundColor3=Color3.new(0,1,0); smStart.ZIndex=201; Instance.new("UICorner", smStart)
+    local smStop = Instance.new("TextButton", spamFrame); smStop.Size=UDim2.new(0.4,0,0.25,0); smStop.Position=UDim2.new(0.55,0,0.6,0); smStop.Text="DỪNG"; smStop.BackgroundColor3=Color3.new(1,0,0); smStop.ZIndex=201; Instance.new("UICorner", smStop)
+    smStart.MouseButton1Click:Connect(function() if smInput.Text~="" then spamContent=smInput.Text end; config.spam=true; spamFrame.Visible=false end)
+    smStop.MouseButton1Click:Connect(function() config.spam=false end)
 
--- Visual
-AddToggle(VisualTab, "👁️ Player ESP", "ESP")
-AddToggle(VisualTab, "💡 Fullbright", "Fullbright")
+    local tpFrame = Instance.new("Frame", gui); tpFrame.Visible=false; tpFrame.Size=UDim2.new(0,250,0,350); tpFrame.Position=UDim2.new(0.85,0,0.5,0); tpFrame.AnchorPoint=Vector2.new(0.5,0.5); tpFrame.BackgroundColor3=Color3.fromRGB(15,15,25); tpFrame.ZIndex=200; Instance.new("UICorner", tpFrame); local tpStroke = Instance.new("UIStroke", tpFrame); tpStroke.Color=Color3.fromRGB(0,150,255)
+    local tpScroll = Instance.new("ScrollingFrame", tpFrame); tpScroll.Size=UDim2.new(0.9,0,0.75,0); tpScroll.Position=UDim2.new(0.05,0,0.12,0); tpScroll.ZIndex=201; Instance.new("UIListLayout", tpScroll).Padding=UDim.new(0,5)
+    local tpClose = Instance.new("TextButton", tpFrame); tpClose.Size=UDim2.new(0.9,0,0.1,0); tpClose.Position=UDim2.new(0.05,0,0.88,0); tpClose.Text="ĐÓNG"; tpClose.BackgroundColor3=Color3.new(1,0,0); tpClose.ZIndex=201; Instance.new("UICorner", tpClose)
+    tpClose.MouseButton1Click:Connect(function() tpFrame.Visible=false end)
+    local function UpdateTPList() for _,v in pairs(tpScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end for _,p in pairs(Players:GetPlayers()) do if p~=pl then local b=Instance.new("TextButton",tpScroll); b.Size=UDim2.new(1,0,0,30); b.Text=p.Name; b.BackgroundColor3=Color3.fromRGB(40,40,50); b.TextColor3=Color3.new(1,1,1); b.ZIndex=202; Instance.new("UICorner",b); b.MouseButton1Click:Connect(function() if p.Character then pl.Character.HumanoidRootPart.CFrame=p.Character.HumanoidRootPart.CFrame*CFrame.new(0,3,0) end end) end end end
 
--- Misc
-AddToggle(MiscTab, "🛡️ God Mode", "GodMode")
-AddToggle(MiscTab, "💬 Chat Spam", "ChatSpam")
+    local viewFrame = Instance.new("Frame", gui); viewFrame.Visible=false; viewFrame.Size=UDim2.new(0,250,0,350); viewFrame.Position=UDim2.new(0.15,0,0.5,0); viewFrame.AnchorPoint=Vector2.new(0.5,0.5); viewFrame.BackgroundColor3=Color3.fromRGB(20,25,20); viewFrame.ZIndex=200; Instance.new("UICorner", viewFrame); local vStroke = Instance.new("UIStroke", viewFrame); vStroke.Color=Color3.fromRGB(0,255,100); vStroke.Thickness=2
+    local viewScroll = Instance.new("ScrollingFrame", viewFrame); viewScroll.Size=UDim2.new(0.9,0,0.7,0); viewScroll.Position=UDim2.new(0.05,0,0.12,0); viewScroll.ZIndex=201; Instance.new("UIListLayout", viewScroll).Padding=UDim.new(0,5)
+    local unviewBtn = Instance.new("TextButton", viewFrame); unviewBtn.Size=UDim2.new(0.9,0,0.1,0); unviewBtn.Position=UDim2.new(0.05,0,0.85,0); unviewBtn.Text="UNVIEW"; unviewBtn.BackgroundColor3=Color3.new(1,0,0); unviewBtn.ZIndex=201; Instance.new("UICorner", unviewBtn)
+    local function UpdateViewList() for _,v in pairs(viewScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end for _,p in pairs(Players:GetPlayers()) do if p~=pl then local b=Instance.new("TextButton",viewScroll); b.Size=UDim2.new(1,0,0,30); b.Text=p.Name; b.BackgroundColor3=Color3.fromRGB(30,40,30); b.TextColor3=Color3.new(1,1,1); b.ZIndex=202; Instance.new("UICorner",b); b.MouseButton1Click:Connect(function() if p.Character and p.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject=p.Character.Humanoid end end) end end end
+    unviewBtn.MouseButton1Click:Connect(function() Workspace.CurrentCamera.CameraSubject=pl.Character.Humanoid; viewFrame.Visible=false end)
 
--- Katana Button (từ bản gốc V112)
-local KatanaBtn = Instance.new("TextButton", MiscTab)
-KatanaBtn.Size = UDim2.new(1,0,0,40)
-KatanaBtn.BackgroundColor3 = Config.Theme.Accent
-KatanaBtn.Text = "🔪 NHẬN KATANA"
-KatanaBtn.TextColor3 = Color3.new(1,1,1)
-KatanaBtn.Font = Enum.Font.GothamBold
-KatanaBtn.TextSize = 14
-Instance.new("UICorner", KatanaBtn)
+    -- SETTINGS (THEME)
+    local setFrame = Instance.new("Frame", gui); setFrame.Visible=false; setFrame.Size=UDim2.new(0,250,0,350); setFrame.Position=UDim2.new(0.85,0,0.5,0); setFrame.AnchorPoint=Vector2.new(0.5,0.5); setFrame.BackgroundColor3=Color3.fromRGB(20,20,30); setFrame.ZIndex=200; Instance.new("UICorner", setFrame); local setStroke = Instance.new("UIStroke", setFrame); setStroke.Color=currentTheme.Main; setStroke.Thickness=2
+    local setScroll = Instance.new("ScrollingFrame", setFrame); setScroll.Size=UDim2.new(0.9,0,0.75,0); setScroll.Position=UDim2.new(0.05,0,0.12,0); setScroll.ZIndex=201; Instance.new("UIListLayout", setScroll).Padding=UDim.new(0,5)
+    local closeSet = Instance.new("TextButton", setFrame); closeSet.Size=UDim2.new(0.9,0,0.1,0); closeSet.Position=UDim2.new(0.05,0,0.88,0); closeSet.Text="ĐÓNG"; closeSet.BackgroundColor3=Color3.new(1,0,0); closeSet.ZIndex=201; Instance.new("UICorner", closeSet)
+    settingsBtn.MouseButton1Click:Connect(function() setFrame.Visible = not setFrame.Visible end); closeSet.MouseButton1Click:Connect(function() setFrame.Visible = false end)
 
--- Open/Close Button (chỉ hiện sau key đúng)
-local OpenBtn = Instance.new("TextButton", ScreenGui)
-OpenBtn.Size = UDim2.new(0,60,0,60)
-OpenBtn.Position = UDim2.new(0,10,0.5,-30)
-OpenBtn.BackgroundColor3 = Config.Theme.Main
-OpenBtn.Text = "OPEN"
-OpenBtn.TextColor3 = Color3.new(0,0,0)
-OpenBtn.Font = Enum.Font.GothamBold
-OpenBtn.TextSize = 16
-OpenBtn.Visible = false
-Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1,0)
-OpenBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-    OpenBtn.Text = MainFrame.Visible and "CLOSE" or "OPEN"
-end)
+    local grid = Instance.new("ScrollingFrame", menu); grid.Size = UDim2.new(0.95,0,0.7,0); grid.Position = UDim2.new(0.025,0,0.15,0); grid.BackgroundTransparency=1; grid.ScrollBarThickness=2
+    local layout = Instance.new("UIGridLayout", grid); layout.CellSize = UDim2.new(0.31,0,0,40); layout.CellPadding = UDim2.new(0.02,0,0.02,0)
 
--- KEY CHECK
-CheckBtn.MouseButton1Click:Connect(function()
-    if KeyInput.Text == Config.Key then
-        StarterGui:SetCore("SendNotification", {Title="THINH HUB", Text="Key Correct! Loading...", Duration=3})
-        TweenService:Create(KeyFrame, TweenInfo.new(0.5), {Size = UDim2.new(0,0,0,0)}):Play()
-        task.wait(0.5)
-        KeyFrame:Destroy()
-        OpenBtn.Visible = true
-        StarterGui:SetCore("SendNotification", {Title="THINH HUB V112", Text="Improved Edition Loaded! Press OPEN.", Duration=5})
-    else
-        StarterGui:SetCore("SendNotification", {Title="THINH HUB", Text="Wrong Key!", Duration=3})
-    end
-end)
+    -- THEME
+    local openBtn; local function UpdateColors(col, bg) menu.BackgroundColor3=bg; mStroke.Color=col; title.TextColor3=col; settingsBtn.TextColor3=col; setStroke.Color=col; if openBtn then openBtn.BackgroundColor3=col end; for _, btn in pairs(grid:GetChildren()) do if btn:IsA("TextButton") and btn.BackgroundColor3 ~= Color3.fromRGB(40,20,20) then btn.BackgroundColor3 = col end end end
+    RunService.RenderStepped:Connect(function() if isRainbow then local hue=tick()%5/5; UpdateColors(Color3.fromHSV(hue,1,1), currentTheme.Bg) end end)
+    for key, val in pairs(THEMES) do local b=Instance.new("TextButton", setScroll); b.Size=UDim2.new(1,0,0,35); b.Text=val.Name; b.BackgroundColor3=val.Main; b.TextColor3=Color3.new(0,0,0); b.ZIndex=202; Instance.new("UICorner", b); b.MouseButton1Click:Connect(function() isRainbow=false; currentTheme=THEMES[key]; UpdateColors(currentTheme.Main, currentTheme.Bg) end) end
+    local rbBtn=Instance.new("TextButton", setScroll); rbBtn.Size=UDim2.new(1,0,0,35); rbBtn.Text="RAINBOW"; rbBtn.BackgroundColor3=Color3.new(1,1,1); rbBtn.TextColor3=Color3.new(0,0,0); rbBtn.ZIndex=202; Instance.new("UICorner", rbBtn); rbBtn.MouseButton1Click:Connect(function() isRainbow=true end)
 
--- Features (giữ nguyên improved, fix Fullbright & Aimbot)
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Thickness = 2
-FOVCircle.Color = Config.Theme.Main
-FOVCircle.Filled = false
-FOVCircle.Radius = Config.Values.AimbotFOV
-FOVCircle.Visible = false
-FOVCircle.NumSides = 60
-
-local ESPBoxes = {}
-local function CreateESP(player)
-    if player == pl or ESPBoxes[player] then return end
-    local box = Drawing.new("Square")
-    box.Thickness = 2
-    box.Color = Config.Theme.Main
-    box.Filled = false
-    box.Transparency = 0.8
-    ESPBoxes[player] = box
-    player.CharacterAdded:Connect(function() ESPBoxes[player] = nil end)
-end
-
-for _,p in pairs(Players:GetPlayers()) do if p ~= pl then CreateESP(p) end end
-Players.PlayerAdded:Connect(function(p) CreateESP(p) end)
-
--- RenderStepped Loop
-RunService.RenderStepped:Connect(function()
-    FOVCircle.Visible = Config.Toggles.FOVCircle
-    FOVCircle.Radius = Config.Values.AimbotFOV
-    FOVCircle.Position = Vector2.new(mouse.X, mouse.Y + 36)
-    
-    -- ESP Update
-    if Config.Toggles.ESP then
-        for player, box in pairs(ESPBoxes) do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-                local root = player.Character.HumanoidRootPart
-                local pos, onScreen = Camera:WorldToViewportPoint(root.Position)
-                if onScreen then
-                    local headPos = Camera:WorldToViewportPoint((player.Character.Head.Position + Vector3.new(0,0.5,0)))
-                    local legPos = Camera:WorldToViewportPoint((root.Position - Vector3.new(0,4,0)))
-                    local height = (headPos.Y - legPos.Y)
-                    box.Size = Vector2.new((height / 2), height)
-                    box.Position = Vector2.new((pos.X - box.Size.X / 2), (pos.Y - box.Size.Y / 2))
-                    box.Visible = true
-                else
-                    box.Visible = false
-                end
-            else
-                box.Visible = false
-            end
-        end
-    else
-        for _,box in pairs(ESPBoxes) do box.Visible = false end
-    end
-    
-    -- Aimbot (fix: bỏ lock center)
-    if Config.Toggles.Aimbot then
-        local closest, closestDist = nil, Config.Values.AimbotFOV
-        local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
-        for _,v in pairs(Players:GetPlayers()) do
-            if v ~= pl and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-                local head = v.Character.Head
-                local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position)
-                if onScreen then
-                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
-                    if dist < closestDist then
-                        closest = head
-                        closestDist = dist
+    -- BUTTON CREATOR
+    local function createBtn(text, id)
+        local btn = Instance.new("TextButton", grid); btn.Text = text; btn.BackgroundColor3 = Color3.fromRGB(40,20,20); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 10; Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
+        btn.MouseButton1Click:Connect(function()
+            if id == "speed_set" then speedFrame.Visible = not speedFrame.Visible
+            elseif id == "jump_set" then jumpFrame.Visible = not jumpFrame.Visible
+            elseif id == "hitbox_set" then hbFrame.Visible = not hbFrame.Visible -- Bảng Hitbox
+            elseif id == "spam_set" then spamFrame.Visible = not spamFrame.Visible
+            elseif id == "tp_list" then tpFrame.Visible = not tpFrame.Visible; if tpFrame.Visible then UpdateTPList() end
+            elseif id == "view_list" then viewFrame.Visible = not viewFrame.Visible; if viewFrame.Visible then UpdateViewList() end
+            else 
+                config[id] = not config[id]
+                local activeColor = isRainbow and mStroke.Color or currentTheme.Main
+                btn.BackgroundColor3 = config[id] and activeColor or Color3.fromRGB(40,20,20)
+                btn.TextColor3 = config[id] and Color3.new(0,0,0) or Color3.new(1,1,1)
+                -- Reset Logic
+                if id == "speed" and not config.speed and pl.Character then pl.Character.Humanoid.WalkSpeed = 16 end
+                if id == "jump" and not config.jump and pl.Character then pl.Character.Humanoid.JumpPower = 50 end
+                if id == "hitbox" and not config.hitbox then -- Reset Hitbox
+                    for _, p in pairs(Players:GetPlayers()) do
+                        if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                            p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                            p.Character.HumanoidRootPart.Transparency = 1
+                        end
                     end
                 end
             end
-        end
-        if closest then
-            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Position), Config.Values.AimbotSmooth)
-        end
+        end)
+        if id == "speed" then RunService.RenderStepped:Connect(function() if config.speed then btn.Text = "⚡ SPEED: " .. customSpeed; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="⚡ SPEED ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
+        if id == "jump" then RunService.RenderStepped:Connect(function() if config.jump then btn.Text = "🦘 JUMP: " .. customJump; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="🦘 JUMP ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
+        if id == "hitbox" then RunService.RenderStepped:Connect(function() if config.hitbox then btn.Text = "🎯 HITBOX: " .. customHitbox; btn.TextColor3=Color3.new(0,0,0); if not isRainbow then btn.BackgroundColor3=currentTheme.Main end else btn.Text="🎯 HITBOX ON/OFF"; btn.BackgroundColor3=Color3.fromRGB(40,20,20); btn.TextColor3=Color3.new(1,1,1) end end) end
     end
-end)
 
--- Heartbeat Loop
-RunService.Heartbeat:Connect(function()
-    local char = pl.Character
-    if not char or not char.Parent or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then return end
-    local root = char.HumanoidRootPart
-    local hum = char.Humanoid
-    
-    if Config.Toggles.Speed then hum.WalkSpeed = Config.Values.Speed end
-    if Config.Toggles.Jump then hum.JumpPower = Config.Values.Jump end
-    
-    if Config.Toggles.Fly then
-        local moveVector = Vector3.new(0,0,0)
-        local camLook = Camera.CFrame.LookVector
-        local camRight = Camera.CFrame.RightVector
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector = moveVector + camLook end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector = moveVector - camLook end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector = moveVector - camRight end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector = moveVector + camRight end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector = moveVector + Vector3.new(0,1,0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveVector = moveVector - Vector3.new(0,1,0) end
-        root.Velocity = moveVector.Unit * Config.Values.FlySpeed
-    end
-    
-    if Config.Toggles.NoClip then
-        for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end
-        end
-    end
-    
-    if Config.Toggles.GodMode then
-        hum.Health = hum.MaxHealth
-    end
-    
-    if Config.Toggles.KillAura then
-        for _,v in pairs(Players:GetPlayers()) do
-            if v ~= pl and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
-                local dist = (v.Character.HumanoidRootPart.Position - root.Position).Magnitude
-                if dist < 15 then
-                    v.Character.Humanoid.Health = 0
+    createBtn("⚙️ CÀI SPEED", "speed_set"); createBtn("⚙️ CÀI JUMP", "jump_set"); createBtn("⚙️ CÀI HITBOX", "hitbox_set")
+    createBtn("⚡ SPEED ON/OFF", "speed"); createBtn("🦘 JUMP ON/OFF", "jump"); createBtn("🎯 HITBOX ON/OFF", "hitbox")
+    createBtn("⚡ CO GIẬT (SPASM)", "spasm")
+    createBtn("⚙️ CÀI SPAM", "spam_set"); createBtn("💬 SPAM ON/OFF", "spam")
+    createBtn("👁️ VIEW PLAYER", "view_list"); createBtn("✈️ TP LIST", "tp_list")
+    createBtn("🛡️ GOD MODE", "god"); createBtn("☠️ KILL ALL", "kill")
+    createBtn("👻 NOCLIP", "noclip"); createBtn("🧲 MAGNET", "magnet")
+
+    -- PHYSICS LOOP
+    RunService.Heartbeat:Connect(function()
+        local char = pl.Character; if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart"); local hum = char:FindFirstChild("Humanoid")
+        
+        if config.speed and hum then hum.WalkSpeed = customSpeed end
+        if config.jump and hum then hum.UseJumpPower = true; hum.JumpPower = customJump end
+        if config.god and hum then hum.Health = hum.MaxHealth end
+        if config.noclip or config.kill then for _,v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
+        if config.spasm and root then root.CFrame = root.CFrame * CFrame.Angles(math.rad(math.random(-30,30)), math.rad(math.random(-30,30)), math.rad(math.random(-30,30))) end
+
+        -- LOGIC HITBOX EXPANDER
+        if config.hitbox then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= pl and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = p.Character.HumanoidRootPart
+                    hrp.Size = Vector3.new(customHitbox, customHitbox, customHitbox)
+                    hrp.Transparency = 0.5
+                    hrp.BrickColor = BrickColor.new("Really red")
+                    hrp.Material = "Neon"
+                    hrp.CanCollide = false
                 end
             end
         end
-    end
-end)
 
--- Infinite Jump
-UserInputService.JumpRequest:Connect(function()
-    if Config.Toggles.InfiniteJump and pl.Character then
-        pl.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
--- Click TP (Right Click)
-mouse.Button2Down:Connect(function()
-    if Config.Toggles.ClickTP and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
-        pl.Character.HumanoidRootPart.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 5, 0))
-    end
-end)
-
--- Fullbright Toggle (fix: dynamic)
-local oldLighting = {Brightness=Lighting.Brightness, ClockTime=Lighting.ClockTime, FogEnd=Lighting.FogEnd, GlobalShadows=Lighting.GlobalShadows}
-local fullbrightConn
-local function ToggleFullbright()
-    if Config.Toggles.Fullbright then
-        oldLighting = {Brightness=Lighting.Brightness, ClockTime=Lighting.ClockTime, FogEnd=Lighting.FogEnd, GlobalShadows=Lighting.GlobalShadows}
-        Lighting.Brightness = 3
-        Lighting.ClockTime = 14
-        Lighting.FogEnd = 9e9
-        Lighting.GlobalShadows = false
-        fullbrightConn = RunService.RenderStepped:Connect(function()
-            Lighting.Brightness = 3
-            Lighting.ClockTime = 14
-            Lighting.FogEnd = 9e9
-            Lighting.GlobalShadows = false
-        end)
-    else
-        if fullbrightConn then fullbrightConn:Disconnect() end
-        Lighting.Brightness = oldLighting.Brightness
-        Lighting.ClockTime = oldLighting.ClockTime
-        Lighting.FogEnd = oldLighting.FogEnd
-        Lighting.GlobalShadows = oldLighting.GlobalShadows
-    end
-end
-
--- Chat Spam
-task.spawn(function()
-    while task.wait(2.5) do
-        if Config.Toggles.ChatSpam then
-            pcall(function()
-                ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")["SayMessageRequest"]:FireServer(Config.ChatSpamMsg, "All")
-            end)
-            pcall(function()
-                TextChatService.TextChannels.RBXGeneral:SendAsync(Config.ChatSpamMsg)
-            end)
-        end
-    end
-end)
-
--- Katana Tool
-KatanaBtn.MouseButton1Click:Connect(function()
-    local tool = Instance.new("Tool")
-    tool.Name = "⚔️ KATANA"
-    tool.RequiresHandle = true
-    tool.Parent = pl.Backpack
-    local handle = Instance.new("Part")
-    handle.Name = "Handle"
-    handle.Size = Vector3.new(0.4, 0.4, 3)
-    handle.Material = Enum.Material.Neon
-    handle.BrickColor = BrickColor.new("Really red")
-    handle.Parent = tool
-    local weld = Instance.new("WeldConstraint")
-    weld.Part0 = handle
-    weld.Part1 = handle
-    weld.Parent = handle
-    
-    tool.Activated:Connect(function()
-        local target, dist = nil, math.huge
-        for _, v in pairs(Players:GetPlayers()) do
-            if v ~= pl and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                local d = (v.Character.HumanoidRootPart.Position - pl.Character.HumanoidRootPart.Position).Magnitude
-                if d < dist then target = v; dist = d end
+        if config.kill and root then
+            root.AssemblyAngularVelocity = Vector3.new(20000, 20000, 20000)
+            for _, t in pairs(Players:GetPlayers()) do
+                if t ~= pl and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
+                    root.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.random(), math.random(), math.random())
+                    root.AssemblyLinearVelocity = Vector3.new(20000, 20000, 20000)
+                end
             end
         end
-        if target and target.Character then
-            local myRoot = pl.Character.HumanoidRootPart
-            local tarRoot = target.Character.HumanoidRootPart
-            local oldCFrame = myRoot.CFrame
-            myRoot.CFrame = tarRoot.CFrame * CFrame.new(0,0,-3)
-            tarRoot.AssemblyLinearVelocity = Vector3.new(0, 100, 0)
-            target.Character.Humanoid.Health = 0
-            task.wait(0.1)
-            myRoot.CFrame = oldCFrame
-        end
+        if config.magnet and root then for _, v in pairs(workspace:GetDescendants()) do if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(char) and (root.Position - v.Position).Magnitude < 100 then v.CanCollide = false; v.CFrame = root.CFrame * CFrame.new(0, 0, -4); v.AssemblyLinearVelocity = Vector3.zero end end end
     end)
-    StarterGui:SetCore("SendNotification", {Title="THINH HUB", Text="Đã nhận Katana!", Duration=3})
+    task.spawn(function() while true do if config.spam then pcall(function() ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(spamContent, "All") end); pcall(function() TextChatService.TextChannels.RBXGeneral:SendAsync(spamContent) end) end; task.wait(2.5) end end)
+    task.spawn(function() while task.wait(1) do if config.esp then for _, p in pairs(Players:GetPlayers()) do if p ~= pl and p.Character and not p.Character:FindFirstChild("DeityHighlight") then local h = Instance.new("Highlight", p.Character); h.Name = "DeityHighlight"; h.FillColor = currentTheme.Main end end else for _, v in pairs(workspace:GetDescendants()) do if v.Name == "DeityHighlight" then v:Destroy() end end end end end)
+
+    openBtn = Instance.new("TextButton", gui); openBtn.Size = UDim2.new(0, 55, 0, 55); openBtn.Position = UDim2.new(0, 20, 0.4, 0); openBtn.BackgroundColor3 = currentTheme.Main; openBtn.Text = "T"; openBtn.Font = Enum.Font.GothamBold; openBtn.TextSize = 24; Instance.new("UICorner", openBtn).CornerRadius = UDim.new(1,0)
+    openBtn.MouseButton1Click:Connect(function() menu.Visible = not menu.Visible end)
+    local d, ds, sp
+    openBtn.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then d = true; ds = i.Position; sp = openBtn.Position end end)
+    UIS.InputChanged:Connect(function(i) if d and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then local delta = input.Position - ds; openBtn.Position = UDim2.new(sp.X.Scale, sp.X.Offset + delta.X, sp.Y.Scale, sp.Y.Offset + delta.Y) end end)
+    UIS.InputEnded:Connect(function(i) d = false end)
+end
+
+kBtn.MouseButton1Click:Connect(function()
+    if CheckPass(actualKey) then kBtn.Text = "SUCCESS!"; kBtn.BackgroundColor3 = Color3.fromRGB(0,255,255); task.wait(1); LoadMainMenu()
+    else kBtn.Text = "WRONG KEY!"; kBtn.BackgroundColor3 = Color3.fromRGB(255,0,0); task.wait(1); kBtn.Text = "CHECK KEY"; kBtn.BackgroundColor3 = Color3.fromRGB(0,255,0) end
 end)
-
--- Connect Fullbright toggle (sau khi menu load)
--- (ToggleFullbright gọi trong AddToggle? Không, vì AddToggle là UI, cần hook sau load)
-
-StarterGui:SetCore("SendNotification", {Title="THINH HUB V112", Text="Enter key to unlock!", Duration=4})
